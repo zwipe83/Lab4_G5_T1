@@ -21,11 +21,11 @@ jobs:
         id: check_commits
         run: |
           git fetch origin main
-          NEW_COMMITS=$(git log HEAD..origin/main --oneline)
-          echo "::set-output name=new_commits::$NEW_COMMITS"
+          $newCommits = git log HEAD..origin/main --oneline
+          echo "::set-output name=new_commits::$newCommits"
 
       - name: Lint Code Base
-        if: steps.check_commits.outputs.new_commits != ''
+        if: steps.check_commits.outputs.new_commits -ne ''
         uses: github/super-linter@v4
         env:
           VALIDATE_ALL_CODEBASE: false
