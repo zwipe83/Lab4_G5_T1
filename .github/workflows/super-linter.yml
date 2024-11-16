@@ -22,10 +22,14 @@ jobs:
         run: |
           git fetch origin main
           $newCommits = git log HEAD..origin/main --oneline
-          echo "::set-output name=new_commits::$newCommits"
+          if ($newCommits) {
+            echo "::set-output name=new_commits::true"
+          } else {
+            echo "::set-output name=new_commits::false"
+          }
 
       - name: Lint Code Base
-        if: steps.check_commits.outputs.new_commits -ne ''
+        if: steps.check_commits.outputs.new_commits == 'true'
         uses: github/super-linter@v4
         env:
           VALIDATE_ALL_CODEBASE: false
