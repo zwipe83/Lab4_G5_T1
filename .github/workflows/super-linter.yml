@@ -1,27 +1,31 @@
-# This workflow executes several linters on changed files based on languages used in your code base whenever
-# you push a code or open a pull request.
-#
-# You can adjust the behavior by modifying this file.
-# For more information, see:
-# https://github.com/github/super-linter
 name: Lint Code Base
 
 on:
+  schedule:
+    - cron: '0 0 * * *' # Runs at midnight every day
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+
 jobs:
   run-lint:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          # Full git history is needed to get a proper list of changed files within `super-linter`
           fetch-depth: 0
 
+      - name: Check for new commits
+        id: check_commits
+        run: |
+          git fetch origin main
+          NEW_COMMITS=$(git log HEAD..origin/main --oneline)
+          echo "::set-output name=new_commits::$NEW_COMMITS"
+
       - name: Lint Code Base
+        if: steps.check_commits.outputs.new_commits != ''
         uses: github/super-linter@v4
         env:
           VALIDATE_ALL_CODEBASE: false
