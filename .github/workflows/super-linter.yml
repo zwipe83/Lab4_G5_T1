@@ -10,7 +10,7 @@ on:
 
 jobs:
   run-lint:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -23,13 +23,13 @@ jobs:
           git fetch origin main
           $newCommits = git log HEAD..origin/main --oneline
           if ($newCommits) {
-            echo "::set-output name=new_commits::true"
+            echo "new_commits=true" >> $GITHUB_ENV
           } else {
-            echo "::set-output name=new_commits::false"
+            echo "new_commits=false" >> $GITHUB_ENV
           }
 
       - name: Lint Code Base
-        if: steps.check_commits.outputs.new_commits == 'true'
+        if: env.new_commits == 'true'
         uses: github/super-linter@v4
         env:
           VALIDATE_ALL_CODEBASE: false
