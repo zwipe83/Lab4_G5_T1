@@ -4,10 +4,10 @@
         <attribute name="name" value="algorithms"/>
         <attribute name="authors" value="Samuel Jeffman"/>
         <attribute name="about" value=""/>
-        <attribute name="saved" value="2024-11-23 03:43:07 PM"/>
+        <attribute name="saved" value="2024-11-23 05:22:35 PM"/>
         <attribute name="created" value="U2FtdWVsIEplZmZtYW47REVTS1RPUC1BNVVCMVYzOzIwMjQtMTEtMTc7MDE6MTU6NDMgUE07MzY1Ng=="/>
         <attribute name="edited" value="U2FtdWVsIEplZmZtYW47REVTS1RPUC1BNVVCMVYzOzIwMjQtMTEtMTc7MDQ6MTY6NTcgUE07NDY7MzgzMA=="/>
-        <attribute name="edited" value="c2plZmY7T01FTjI1TDsyMDI0LTExLTIzOzAzOjQzOjA3IFBNOzM5NjsyNTA1"/>
+        <attribute name="edited" value="c2plZmY7T01FTjI1TDsyMDI0LTExLTIzOzA1OjIyOjM1IFBNOzM5ODsyNTA3"/>
     </attributes>
     <function name="Main" type="None" variable="">
         <parameters/>
@@ -35,7 +35,7 @@
             <assign variable="roundCount" expression="1"/>
             <do expression="numOfMoves &gt; 0 &amp;&amp; roundCount &lt;= numOfRounds">
                 <output expression="&quot;Starting round: &quot; &amp; roundCount" newline="True"/>
-                <assign variable="numOfMoves" expression="startRound(grid, proposedMoves, numOfProposedMoves, numOfRounds, searchDirections, northOrder, southOrder, westOrder, eastOrder)"/>
+                <assign variable="numOfMoves" expression="startRound(grid, proposedMoves, numOfProposedMoves, searchDirections, northOrder, southOrder, westOrder, eastOrder)"/>
                 <output expression="&quot;Moves performed: &quot; &amp; numOfMoves" newline="True"/>
                 <call expression="shuffleOrder(northOrder, southOrder, westOrder, eastOrder)"/>
                 <assign variable="northOrder" expression="northOrder - 1"/>
@@ -705,7 +705,6 @@
             <parameter name="grid" type="String" array="True"/>
             <parameter name="proposedMoves" type="Integer" array="True"/>
             <parameter name="numOfProposedMoves" type="Integer" array="True"/>
-            <parameter name="numOfRounds" type="Integer" array="False"/>
             <parameter name="searchDirections" type="Integer" array="True"/>
             <parameter name="northOrder" type="Integer" array="False"/>
             <parameter name="southOrder" type="Integer" array="False"/>
