@@ -89,43 +89,36 @@ Round 5
 8. Stop
     8.1 When no moves performed or when number of rounds reached
         8.1.1 Calculate empty ground tiles('.') in smallest rectangle where all # fits
-            8.1.1.1 Init int array start position [0,0] and diagonal position [width, height]
+            8.1.1.1 Init ints topRow, rightCol, bottomRow, leftCol
                 8.1.1.1.1 Start from [0][0] in a spiral pattern
                     8.1.1.1.1.1 Go through top row
-                        8.1.1.1.1.1.1 Halt if char is #, Go to 8.1.1.1.2
+                        8.1.1.1.1.1.1 If char is #, save row to topRow
                     8.1.1.1.1.2 Go through right edge column
-                        8.1.1.1.1.2.1 Halt if char is #, Go to 8.1.1.1.2
+                        8.1.1.1.1.2.1 If char is #, save col to rightCol
                     8.1.1.1.1.3 Go through bottom row in reverse
-                        8.1.1.1.1.3.1 Halt if char is #, Go to 8.1.1.1.2
+                        8.1.1.1.1.3.1 If char is #, save row to bottomRow
                     8.1.1.1.1.4 Go through left edge column in reverse until x=x+1
-                        8.1.1.1.1.4.1 Halt if char is #, Go to 8.1.1.1.2
-                        8.1.1.1.1.4.1 Update array 8.1.1.1 start position and diagonal position
-                        8.1.1.1.1.4.2 Go to 8.1.1.1.1 using new start position
+                        8.1.1.1.1.4.1 If char is #, save col to leftCol
+					8.1.1.1.1.4 If all four sides of recatngle has been found, move on.
                 8.1.1.1.2 Print result
-					8.1.1.1.2.1 Figure out how big the rectangle is
-						8.1.1.1.2.1 x=x2-x1, y=y2-y1
-					8.1.1.1.2.2 Init int dotCount
-					8.1.1.1.2.3 Init int hashCount
-					8.1.1.1.2.2 Iterate array 2.1.2 row by row
-						8.1.1.1.2.2.1 Iterate array 2.1.2 char by char
-							8.1.1.1.2.2.1.1 If char is #
-								8.1.1.1.2.2.1.1.1 Add 1 to hashCount
-							8.1.1.1.2.2.1.2 If char is .
-								8.1.1.1.2.2.1.2.1 Add 1 to dotCount
+					8.1.1.1.2.1 Init int dotCount
+					8.1.1.1.2.2 Iterate grid row-by-row, from topRow to bottomRow
+						8.1.1.1.2.2.1 Iterate grid char-by-char, from leftCol to rightCol
+							8.1.1.1.2.2.1.1 If char is .
+								8.1.1.1.2.2.1.1.1 Add 1 to dotCount
 					8.1.1.1.2.3 Print dotCount to screen
-					8.1.1.1.2.4 Print hashCount to screen
 				8.1.1.1.3 Exit application or go to 2
 				
 				
 Suggested functions
-loadInitialState
-readFromFile
-userInput
-startRound
-checkForNeighbours
-saveProposedMove
-performProposedMoves
-resetArrays
-shuffleArray
-calculateEmptyTiles
-printResult
+loadInitialState - ok
+readFromFile - ok
+userInput - ok
+startRound - ok
+checkForNeighbours - ok
+saveProposedMove - ok
+performProposedMoves - ok
+resetArrays - ok
+shuffleArray - maybe
+calculateEmptyTiles - ok
+printGrid - ok

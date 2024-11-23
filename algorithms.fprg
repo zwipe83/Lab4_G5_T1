@@ -1,0 +1,739 @@
+<?xml version="1.0"?>
+<flowgorithm fileversion="4.2">
+    <attributes>
+        <attribute name="name" value="algorithms"/>
+        <attribute name="authors" value="Samuel Jeffman"/>
+        <attribute name="about" value=""/>
+        <attribute name="saved" value="2024-11-23 03:43:07 PM"/>
+        <attribute name="created" value="U2FtdWVsIEplZmZtYW47REVTS1RPUC1BNVVCMVYzOzIwMjQtMTEtMTc7MDE6MTU6NDMgUE07MzY1Ng=="/>
+        <attribute name="edited" value="U2FtdWVsIEplZmZtYW47REVTS1RPUC1BNVVCMVYzOzIwMjQtMTEtMTc7MDQ6MTY6NTcgUE07NDY7MzgzMA=="/>
+        <attribute name="edited" value="c2plZmY7T01FTjI1TDsyMDI0LTExLTIzOzAzOjQzOjA3IFBNOzM5NjsyNTA1"/>
+    </attributes>
+    <function name="Main" type="None" variable="">
+        <parameters/>
+        <body>
+            <output expression="&quot;Start app&quot;" newline="True"/>
+            <declare name="grid" type="String" array="True" size="30625"/>
+            <declare name="i" type="Integer" array="False" size=""/>
+            <comment text="Init grid"/>
+            <for variable="i" start="0" end="30624" direction="inc" step="1">
+                <assign variable="grid[i]" expression="&quot;.&quot;"/>
+            </for>
+            <declare name="proposedMoves" type="Integer" array="True" size="61250"/>
+            <declare name="numOfProposedMoves" type="Integer" array="True" size="30625"/>
+            <declare name="searchDirections" type="Integer" array="True" size="16"/>
+            <declare name="numOfRounds" type="Integer" array="False" size=""/>
+            <assign variable="numOfRounds" expression="-1"/>
+            <call expression="loadInitialState(grid, searchDirections, numOfProposedMoves, proposedMoves)"/>
+            <assign variable="numOfRounds" expression="userInput()"/>
+            <declare name="northOrder, southOrder, westOrder, eastOrder" type="Integer" array="False" size=""/>
+            <assign variable="northOrder" expression="0"/>
+            <assign variable="southOrder" expression="1"/>
+            <assign variable="westOrder" expression="2"/>
+            <assign variable="eastOrder" expression="3"/>
+            <declare name="roundCount, numOfMoves" type="Integer" array="False" size=""/>
+            <assign variable="roundCount" expression="1"/>
+            <do expression="numOfMoves &gt; 0 &amp;&amp; roundCount &lt;= numOfRounds">
+                <output expression="&quot;Starting round: &quot; &amp; roundCount" newline="True"/>
+                <assign variable="numOfMoves" expression="startRound(grid, proposedMoves, numOfProposedMoves, numOfRounds, searchDirections, northOrder, southOrder, westOrder, eastOrder)"/>
+                <output expression="&quot;Moves performed: &quot; &amp; numOfMoves" newline="True"/>
+                <call expression="shuffleOrder(northOrder, southOrder, westOrder, eastOrder)"/>
+                <assign variable="northOrder" expression="northOrder - 1"/>
+                <if expression="northOrder &lt; 0">
+                    <then>
+                        <assign variable="northOrder" expression="3"/>
+                    </then>
+                    <else/>
+                </if>
+                <assign variable="southOrder" expression="southOrder - 1"/>
+                <if expression="southOrder &lt; 0">
+                    <then>
+                        <assign variable="southOrder" expression="3"/>
+                    </then>
+                    <else/>
+                </if>
+                <assign variable="westOrder" expression="westOrder - 1"/>
+                <if expression="westOrder &lt; 0">
+                    <then>
+                        <assign variable="westOrder" expression="3"/>
+                    </then>
+                    <else/>
+                </if>
+                <assign variable="eastOrder" expression="eastOrder - 1"/>
+                <if expression="eastOrder &lt; 0">
+                    <then>
+                        <assign variable="eastOrder" expression="3"/>
+                    </then>
+                    <else/>
+                </if>
+                <assign variable="roundCount" expression="roundCount + 1"/>
+            </do>
+            <call expression="printGrid(grid)"/>
+            <declare name="emptyTiles" type="Integer" array="False" size=""/>
+            <assign variable="emptyTiles" expression="calculateEmptyTiles(grid)"/>
+            <output expression="&quot;Empty tiles: &quot; &amp; emptyTiles" newline="True"/>
+        </body>
+    </function>
+    <function name="calculateEmptyTiles" type="Integer" variable="emptyTiles">
+        <parameters>
+            <parameter name="grid" type="String" array="True"/>
+        </parameters>
+        <body>
+            <declare name="emptyTiles, row, col, top, right, bottom, left, direction, index, topRow, rightCol, bottomRow, LeftCol" type="Integer" array="False" size=""/>
+            <assign variable="emptyTiles" expression="0"/>
+            <assign variable="top" expression="0"/>
+            <assign variable="right" expression="174"/>
+            <assign variable="bottom" expression="174"/>
+            <assign variable="left" expression="0"/>
+            <assign variable="direction" expression="0"/>
+            <assign variable="row" expression="0"/>
+            <assign variable="col" expression="0"/>
+            <assign variable="topRow" expression="-1"/>
+            <assign variable="rightCol" expression="-1"/>
+            <assign variable="bottomRow" expression="-1"/>
+            <assign variable="leftCol" expression="-1"/>
+            <while expression="top &lt;= bottom &amp;&amp; left &lt;= right">
+                <if expression="direction == 0">
+                    <then>
+                        <for variable="col" start="left" end="right" direction="inc" step="1">
+                            <assign variable="index" expression="row * 175 + col"/>
+                            <if expression="grid[index] == &quot;#&quot; &amp;&amp; topRow == -1">
+                                <then>
+                                    <output expression="&quot;Top # at index : &quot; &amp; index &amp; &quot;, row: &quot; &amp; row &amp; &quot;, col: &quot; &amp; col" newline="True"/>
+                                    <assign variable="topRow" expression="row"/>
+                                </then>
+                                <else/>
+                            </if>
+                        </for>
+                        <assign variable="top" expression="top + 1"/>
+                        <assign variable="row" expression="top"/>
+                    </then>
+                    <else/>
+                </if>
+                <if expression="direction == 1">
+                    <then>
+                        <for variable="row" start="top" end="bottom" direction="inc" step="1">
+                            <assign variable="index" expression="row * 175 + right"/>
+                            <if expression="grid[index] == &quot;#&quot; &amp;&amp; rightCol == -1">
+                                <then>
+                                    <output expression="&quot;Right # at index : &quot; &amp; index &amp; &quot;, row: &quot; &amp; row &amp; &quot;, col: &quot; &amp; right" newline="True"/>
+                                    <assign variable="rightCol" expression="right"/>
+                                </then>
+                                <else/>
+                            </if>
+                        </for>
+                        <assign variable="right" expression="right - 1"/>
+                        <assign variable="col" expression="right"/>
+                    </then>
+                    <else/>
+                </if>
+                <if expression="direction == 2">
+                    <then>
+                        <for variable="col" start="right" end="left" direction="dec" step="1">
+                            <assign variable="index" expression="bottom * 175 + col"/>
+                            <if expression="grid[index] == &quot;#&quot; &amp;&amp; bottomRow == -1">
+                                <then>
+                                    <output expression="&quot;Bottom # at index : &quot; &amp; index &amp; &quot;, row: &quot; &amp; bottom &amp; &quot;, col: &quot; &amp; col" newline="True"/>
+                                    <assign variable="bottomRow" expression="bottom"/>
+                                </then>
+                                <else/>
+                            </if>
+                        </for>
+                        <assign variable="bottom" expression="bottom - 1"/>
+                        <assign variable="row" expression="bottom"/>
+                    </then>
+                    <else/>
+                </if>
+                <if expression="direction == 3">
+                    <then>
+                        <for variable="row" start="bottom" end="top" direction="dec" step="1">
+                            <assign variable="index" expression="row * 175 + left"/>
+                            <if expression="grid[index] == &quot;#&quot; &amp;&amp; leftCol == -1">
+                                <then>
+                                    <output expression="&quot;Left # at index : &quot; &amp; index &amp; &quot;, row: &quot; &amp; row &amp; &quot;, col: &quot; &amp; left" newline="True"/>
+                                    <assign variable="leftCol" expression="left"/>
+                                </then>
+                                <else/>
+                            </if>
+                        </for>
+                        <assign variable="left" expression="left + 1"/>
+                        <assign variable="col" expression="left"/>
+                    </then>
+                    <else/>
+                </if>
+                <assign variable="direction" expression="(direction + 1) % 4"/>
+            </while>
+            <output expression="&quot;Top row: &quot; &amp; topRow &amp; &quot;, Left col: &quot; &amp; leftCol &amp; &quot;, Bottom row: &quot; &amp; bottomRow &amp; &quot;, Right col: &quot; &amp; rightCol" newline="True"/>
+            <declare name="rowCount, colCount" type="Integer" array="False" size=""/>
+            <for variable="rowCount" start="topRow" end="bottomRow" direction="inc" step="1">
+                <for variable="colCount" start="leftCol" end="rightCol" direction="inc" step="1">
+                    <assign variable="index" expression="rowCount * 175 + colCount"/>
+                    <if expression="grid[index] == &quot;.&quot;">
+                        <then>
+                            <assign variable="emptyTiles" expression="emptyTiles + 1"/>
+                        </then>
+                        <else/>
+                    </if>
+                </for>
+            </for>
+        </body>
+    </function>
+    <function name="checkForNeighbours" type="None" variable="">
+        <parameters>
+            <parameter name="grid" type="String" array="True"/>
+            <parameter name="proposedMoves" type="Integer" array="True"/>
+            <parameter name="numOfProposedMoves" type="Integer" array="True"/>
+            <parameter name="searchDirections" type="Integer" array="True"/>
+            <parameter name="northOrder" type="Integer" array="False"/>
+            <parameter name="southOrder" type="Integer" array="False"/>
+            <parameter name="westOrder" type="Integer" array="False"/>
+            <parameter name="eastOrder" type="Integer" array="False"/>
+        </parameters>
+        <body>
+            <declare name="bDebug" type="Boolean" array="False" size=""/>
+            <assign variable="bDebug" expression="false"/>
+            <declare name="row" type="Integer" array="False" size=""/>
+            <declare name="hasNeighbours" type="Integer" array="True" size="30625"/>
+            <declare name="northDirections, southDirections, eastDirections, westDirections" type="Integer" array="True" size="6"/>
+            <assign variable="northDirections[0]" expression="-1"/>
+            <assign variable="northDirections[1]" expression="-1"/>
+            <assign variable="northDirections[2]" expression="-1"/>
+            <assign variable="northDirections[3]" expression="0"/>
+            <assign variable="northDirections[4]" expression="-1"/>
+            <assign variable="northDirections[5]" expression="1"/>
+            <assign variable="southDirections[0]" expression="1"/>
+            <assign variable="southDirections[1]" expression="1"/>
+            <assign variable="southDirections[2]" expression="1"/>
+            <assign variable="southDirections[3]" expression="0"/>
+            <assign variable="southDirections[4]" expression="1"/>
+            <assign variable="southDirections[5]" expression="-1"/>
+            <assign variable="westDirections[0]" expression="-1"/>
+            <assign variable="westDirections[1]" expression="-1"/>
+            <assign variable="westDirections[2]" expression="0"/>
+            <assign variable="westDirections[3]" expression="-1"/>
+            <assign variable="westDirections[4]" expression="1"/>
+            <assign variable="westDirections[5]" expression="-1"/>
+            <assign variable="eastDirections[0]" expression="-1"/>
+            <assign variable="eastDirections[1]" expression="1"/>
+            <assign variable="eastDirections[2]" expression="0"/>
+            <assign variable="eastDirections[3]" expression="1"/>
+            <assign variable="eastDirections[4]" expression="1"/>
+            <assign variable="eastDirections[5]" expression="1"/>
+            <for variable="row" start="0" end="174" direction="inc" step="1">
+                <declare name="col" type="Integer" array="False" size=""/>
+                <for variable="col" start="0" end="174" direction="inc" step="1">
+                    <declare name="index" type="Integer" array="False" size=""/>
+                    <assign variable="index" expression="row * 175 + col"/>
+                    <assign variable="hasNeighbours[index]" expression="0"/>
+                    <if expression="grid[index] == &quot;#&quot;">
+                        <then>
+                            <declare name="row2" type="Integer" array="False" size=""/>
+                            <for variable="row2" start="0" end="7" direction="inc" step="1">
+                                <declare name="col2" type="Integer" array="False" size=""/>
+                                <declare name="rowNew, colNew" type="Integer" array="False" size=""/>
+                                <assign variable="rowNew" expression="-2"/>
+                                <assign variable="colNew" expression="-2"/>
+                                <for variable="col2" start="0" end="1" direction="inc" step="1">
+                                    <declare name="index2" type="Integer" array="False" size=""/>
+                                    <assign variable="index2" expression="row2 * 2 + col2"/>
+                                    <if expression="rowNew == -2 &amp;&amp; colNew == -2">
+                                        <then>
+                                            <assign variable="rowNew" expression="row + searchDirections[index2]"/>
+                                        </then>
+                                        <else>
+                                            <assign variable="colNew" expression="col + searchDirections[index2]"/>
+                                        </else>
+                                    </if>
+                                </for>
+                                <if expression="rowNew &gt;= 0 &amp;&amp; rowNew &lt;= 174 &amp;&amp; colNew &gt;= 0 &amp;&amp; colNew &lt;= 174">
+                                    <then>
+                                        <declare name="index3" type="Integer" array="False" size=""/>
+                                        <assign variable="index3" expression="rowNew * 175 + colNew"/>
+                                        <if expression="grid[index3] == &quot;#&quot;">
+                                            <then>
+                                                <assign variable="hasNeighbours[index]" expression="1"/>
+                                                <if expression="bDebug == true">
+                                                    <then>
+                                                        <output expression="row &amp; &quot;:&quot; &amp; col &amp; &quot;, Has neighbour @ &quot; &amp; rowNew &amp; &quot;:&quot; &amp; colNew" newline="True"/>
+                                                    </then>
+                                                    <else/>
+                                                </if>
+                                            </then>
+                                            <else/>
+                                        </if>
+                                        <if expression="bDebug == true">
+                                            <then>
+                                                <output expression="&quot;4.1.1.1&quot;" newline="True"/>
+                                                <output expression="&quot;All in bounds:&quot;" newline="True"/>
+                                                <output expression="&quot;Old pos: &quot; &amp; row &amp; &quot;:&quot; &amp; col" newline="True"/>
+                                                <output expression="&quot;New pos: &quot; &amp; rowNew &amp; &quot;:&quot; &amp; colNew" newline="True"/>
+                                            </then>
+                                            <else/>
+                                        </if>
+                                    </then>
+                                    <else/>
+                                </if>
+                            </for>
+                            <if expression="hasNeighbours[index] == 1">
+                                <then>
+                                    <declare name="movePossible, moveFound" type="Boolean" array="False" size=""/>
+                                    <assign variable="moveFound" expression="false"/>
+                                    <declare name="count" type="Integer" array="False" size=""/>
+                                    <declare name="dx, dy, newRow, newCol" type="Integer" array="False" size=""/>
+                                    <for variable="count" start="0" end="3" direction="inc" step="1">
+                                        <assign variable="movePossible" expression="true"/>
+                                        <if expression="count == northOrder &amp;&amp; moveFound == false">
+                                            <then>
+                                                <comment text="Searching north."/>
+                                                <declare name="count2" type="Integer" array="False" size=""/>
+                                                <for variable="count2" start="0" end="2" direction="inc" step="1">
+                                                    <assign variable="dx" expression="northDirections[count2 * 2]"/>
+                                                    <assign variable="dy" expression="northDirections[count2 * 2 + 1]"/>
+                                                    <assign variable="newRow" expression="row + dx"/>
+                                                    <assign variable="newCol" expression="col + dy"/>
+                                                    <if expression="newRow &gt;= 0 &amp;&amp; newRow &lt;= 174 &amp;&amp; newCol &gt;= 0 &amp;&amp; newCol &lt;= 174">
+                                                        <then>
+                                                            <declare name="newIndex" type="Integer" array="False" size=""/>
+                                                            <assign variable="newIndex" expression="newRow * 175 + newCol"/>
+                                                            <if expression="grid[newIndex] == &quot;#&quot;">
+                                                                <then>
+                                                                    <assign variable="movePossible" expression="false"/>
+                                                                </then>
+                                                                <else/>
+                                                            </if>
+                                                        </then>
+                                                        <else/>
+                                                    </if>
+                                                </for>
+                                                <if expression="movePossible == true">
+                                                    <then>
+                                                        <assign variable="newRow" expression="row + (-1)"/>
+                                                        <assign variable="newCol" expression="col + 0"/>
+                                                        <if expression="newRow &gt;= 0 &amp;&amp; newRow &lt;= 174 &amp;&amp; newCol &gt;= 0 &amp;&amp; newCol &lt;= 174">
+                                                            <then>
+                                                                <if expression="bDebug == true">
+                                                                    <then>
+                                                                        <output expression="&quot;Northward move possible from &quot; &amp; row &amp; &quot;:&quot; &amp; col &amp; &quot; to &quot; &amp; newRow &amp; &quot;:&quot; &amp; newCol" newline="True"/>
+                                                                        <output expression="&quot;North it is&quot;" newline="True"/>
+                                                                    </then>
+                                                                    <else/>
+                                                                </if>
+                                                                <assign variable="moveFound" expression="true"/>
+                                                                <call expression="saveProposedMove(proposedMoves, numOfProposedMoves, row, col, newRow, newCol)"/>
+                                                            </then>
+                                                            <else/>
+                                                        </if>
+                                                    </then>
+                                                    <else/>
+                                                </if>
+                                            </then>
+                                            <else/>
+                                        </if>
+                                        <if expression="count == southOrder &amp;&amp; moveFound == false">
+                                            <then>
+                                                <comment text="Searching south"/>
+                                                <declare name="count2" type="Integer" array="False" size=""/>
+                                                <for variable="count2" start="0" end="2" direction="inc" step="1">
+                                                    <assign variable="dx" expression="southDirections[count2 * 2]"/>
+                                                    <assign variable="dy" expression="southDirections[count2 * 2 + 1]"/>
+                                                    <assign variable="newRow" expression="row + dx"/>
+                                                    <assign variable="newCol" expression="col + dy"/>
+                                                    <if expression="newRow &gt;= 0 &amp;&amp; newRow &lt;= 174 &amp;&amp; newCol &gt;= 0 &amp;&amp; newCol &lt;= 174">
+                                                        <then>
+                                                            <declare name="newIndex" type="Integer" array="False" size=""/>
+                                                            <assign variable="newIndex" expression="newRow * 175 + newCol"/>
+                                                            <if expression="grid[newIndex] == &quot;#&quot;">
+                                                                <then>
+                                                                    <assign variable="movePossible" expression="false"/>
+                                                                </then>
+                                                                <else/>
+                                                            </if>
+                                                        </then>
+                                                        <else/>
+                                                    </if>
+                                                </for>
+                                                <if expression="movePossible == true">
+                                                    <then>
+                                                        <assign variable="newRow" expression="row + 1"/>
+                                                        <assign variable="newCol" expression="col + 0"/>
+                                                        <if expression="newRow &gt;= 0 &amp;&amp; newRow &lt;= 174 &amp;&amp; newCol &gt;= 0 &amp;&amp; newCol &lt;= 174">
+                                                            <then>
+                                                                <if expression="bDebug == true">
+                                                                    <then>
+                                                                        <output expression="&quot;Southward move possible from &quot; &amp; row &amp; &quot;:&quot; &amp; col &amp; &quot; to &quot; &amp; newRow &amp; &quot;:&quot; &amp; newCol" newline="True"/>
+                                                                        <output expression="&quot;Southie move&quot;" newline="True"/>
+                                                                    </then>
+                                                                    <else/>
+                                                                </if>
+                                                                <assign variable="moveFound" expression="true"/>
+                                                                <call expression="saveProposedMove(proposedMoves, numOfProposedMoves, row, col, newRow, newCol)"/>
+                                                            </then>
+                                                            <else/>
+                                                        </if>
+                                                    </then>
+                                                    <else/>
+                                                </if>
+                                            </then>
+                                            <else/>
+                                        </if>
+                                        <if expression="count == westOrder &amp;&amp; moveFound == false">
+                                            <then>
+                                                <comment text="Searching west"/>
+                                                <declare name="count2" type="Integer" array="False" size=""/>
+                                                <for variable="count2" start="0" end="2" direction="inc" step="1">
+                                                    <assign variable="dx" expression="westDirections[count2 * 2]"/>
+                                                    <assign variable="dy" expression="westDirections[count2 * 2 + 1]"/>
+                                                    <assign variable="newRow" expression="row + dx"/>
+                                                    <assign variable="newCol" expression="col + dy"/>
+                                                    <if expression="newRow &gt;= 0 &amp;&amp; newRow &lt;= 174 &amp;&amp; newCol &gt;= 0 &amp;&amp; newCol &lt;= 174">
+                                                        <then>
+                                                            <declare name="newIndex" type="Integer" array="False" size=""/>
+                                                            <assign variable="newIndex" expression="newRow * 175 + newCol"/>
+                                                            <if expression="grid[newIndex] == &quot;#&quot;">
+                                                                <then>
+                                                                    <assign variable="movePossible" expression="false"/>
+                                                                </then>
+                                                                <else/>
+                                                            </if>
+                                                        </then>
+                                                        <else/>
+                                                    </if>
+                                                </for>
+                                                <if expression="movePossible == true">
+                                                    <then>
+                                                        <assign variable="newRow" expression="row + 0"/>
+                                                        <assign variable="newCol" expression="col + (-1)"/>
+                                                        <if expression="newRow &gt;= 0 &amp;&amp; newRow &lt;= 174 &amp;&amp; newCol &gt;= 0 &amp;&amp; newCol &lt;= 174">
+                                                            <then>
+                                                                <if expression="bDebug == true">
+                                                                    <then>
+                                                                        <output expression="&quot;Westward move possible from &quot; &amp; row &amp; &quot;:&quot; &amp; col &amp; &quot; to &quot; &amp; newRow &amp; &quot;:&quot; &amp; newCol" newline="True"/>
+                                                                        <output expression="&quot;Moving west&quot;" newline="True"/>
+                                                                    </then>
+                                                                    <else/>
+                                                                </if>
+                                                                <assign variable="moveFound" expression="true"/>
+                                                                <call expression="saveProposedMove(proposedMoves, numOfProposedMoves, row, col, newRow, newCol)"/>
+                                                            </then>
+                                                            <else/>
+                                                        </if>
+                                                    </then>
+                                                    <else/>
+                                                </if>
+                                            </then>
+                                            <else/>
+                                        </if>
+                                        <if expression="count == eastOrder &amp;&amp; moveFound == false">
+                                            <then>
+                                                <comment text="Searching east"/>
+                                                <declare name="count2" type="Integer" array="False" size=""/>
+                                                <for variable="count2" start="0" end="2" direction="inc" step="1">
+                                                    <assign variable="dx" expression="eastDirections[count2 * 2]"/>
+                                                    <assign variable="dy" expression="eastDirections[count2 * 2 + 1]"/>
+                                                    <assign variable="newRow" expression="row + dx"/>
+                                                    <assign variable="newCol" expression="col + dy"/>
+                                                    <if expression="newRow &gt;= 0 &amp;&amp; newRow &lt;= 174 &amp;&amp; newCol &gt;= 0 &amp;&amp; newCol &lt;= 174">
+                                                        <then>
+                                                            <declare name="newIndex" type="Integer" array="False" size=""/>
+                                                            <assign variable="newIndex" expression="newRow * 175 + newCol"/>
+                                                            <if expression="grid[newIndex] == &quot;#&quot;">
+                                                                <then>
+                                                                    <assign variable="movePossible" expression="false"/>
+                                                                </then>
+                                                                <else/>
+                                                            </if>
+                                                        </then>
+                                                        <else/>
+                                                    </if>
+                                                </for>
+                                                <if expression="movePossible == true">
+                                                    <then>
+                                                        <assign variable="newRow" expression="row + 0"/>
+                                                        <assign variable="newCol" expression="col + 1"/>
+                                                        <if expression="newRow &gt;= 0 &amp;&amp; newRow &lt;= 174 &amp;&amp; newCol &gt;= 0 &amp;&amp; newCol &lt;= 174">
+                                                            <then>
+                                                                <if expression="bDebug == true">
+                                                                    <then>
+                                                                        <output expression="&quot;Eastward move possible from &quot; &amp; row &amp; &quot;:&quot; &amp; col &amp; &quot; to &quot; &amp; newRow &amp; &quot;:&quot; &amp; newCol" newline="True"/>
+                                                                        <output expression="&quot;East we go&quot;" newline="True"/>
+                                                                    </then>
+                                                                    <else/>
+                                                                </if>
+                                                                <assign variable="moveFound" expression="true"/>
+                                                                <call expression="saveProposedMove(proposedMoves, numOfProposedMoves, row, col, newRow, newCol)"/>
+                                                            </then>
+                                                            <else/>
+                                                        </if>
+                                                    </then>
+                                                    <else/>
+                                                </if>
+                                            </then>
+                                            <else/>
+                                        </if>
+                                    </for>
+                                </then>
+                                <else/>
+                            </if>
+                        </then>
+                        <else/>
+                    </if>
+                </for>
+            </for>
+        </body>
+    </function>
+    <function name="loadInitialState" type="None" variable="">
+        <parameters>
+            <parameter name="grid" type="String" array="True"/>
+            <parameter name="searchDirections" type="Integer" array="True"/>
+            <parameter name="numOfProposedMoves" type="Integer" array="True"/>
+            <parameter name="proposedMoves" type="Integer" array="True"/>
+        </parameters>
+        <body>
+            <comment text="Init arrays"/>
+            <call expression="resetArrays(proposedMoves, numOfProposedMoves)"/>
+            <call expression="readFromFile(grid)"/>
+            <assign variable="searchDirections[0]" expression="-1"/>
+            <assign variable="searchDirections[1]" expression="-1"/>
+            <assign variable="searchDirections[2]" expression="-1"/>
+            <assign variable="searchDirections[3]" expression="0"/>
+            <assign variable="searchDirections[4]" expression="-1"/>
+            <assign variable="searchDirections[5]" expression="1"/>
+            <assign variable="searchDirections[6]" expression="0"/>
+            <assign variable="searchDirections[7]" expression="1"/>
+            <assign variable="searchDirections[8]" expression="1"/>
+            <assign variable="searchDirections[9]" expression="1"/>
+            <assign variable="searchDirections[10]" expression="1"/>
+            <assign variable="searchDirections[11]" expression="0"/>
+            <assign variable="searchDirections[12]" expression="1"/>
+            <assign variable="searchDirections[13]" expression="-1"/>
+            <assign variable="searchDirections[14]" expression="0"/>
+            <assign variable="searchDirections[15]" expression="-1"/>
+        </body>
+    </function>
+    <function name="performProposedMoves" type="Integer" variable="numOfMoves">
+        <parameters>
+            <parameter name="grid" type="String" array="True"/>
+            <parameter name="proposedMoves" type="Integer" array="True"/>
+            <parameter name="numOfProposedMoves" type="Integer" array="True"/>
+        </parameters>
+        <body>
+            <output expression="&quot;Check and perform moves&quot;" newline="True"/>
+            <declare name="bDebug" type="Boolean" array="False" size=""/>
+            <assign variable="bDebug" expression="false"/>
+            <declare name="row, numOfMoves" type="Integer" array="False" size=""/>
+            <assign variable="numOfMoves" expression="0"/>
+            <assign variable="row" expression="0"/>
+            <for variable="row" start="0" end="174" direction="inc" step="1">
+                <declare name="col" type="Integer" array="False" size=""/>
+                <assign variable="col" expression="0"/>
+                <for variable="col" start="0" end="174" direction="inc" step="1">
+                    <declare name="coord" type="Integer" array="False" size=""/>
+                    <assign variable="coord" expression="0"/>
+                    <for variable="coord" start="0" end="1" direction="inc" step="1">
+                        <declare name="x, y" type="Integer" array="False" size=""/>
+                        <assign variable="x" expression="row * (175 * 2) + col * 2 + 0"/>
+                        <assign variable="y" expression="x + 1"/>
+                        <if expression="proposedMoves[x] != -1 &amp;&amp; proposedMoves[y] != -1">
+                            <then>
+                                <if expression="bDebug == true">
+                                    <then>
+                                        <output expression="&quot;x: &quot; &amp; x &amp; &quot;, y: &quot; &amp; y &amp; &quot;, Proposed move: From: &quot; &amp; row &amp; &quot;:&quot; &amp; col &amp; &quot; to &quot; &amp; proposedMoves[x] &amp; &quot;:&quot; &amp; proposedMoves[y]" newline="True"/>
+                                    </then>
+                                    <else/>
+                                </if>
+                                <declare name="newIndex" type="Integer" array="False" size=""/>
+                                <assign variable="newIndex" expression="proposedMoves[x] * 175 + proposedMoves[y]"/>
+                                <if expression="numOfProposedMoves[newIndex] == 1">
+                                    <then>
+                                        <if expression="bDebug == true">
+                                            <then>
+                                                <output expression="&quot;This move is possible, &quot; &amp; numOfProposedMoves[newIndex]" newline="True"/>
+                                            </then>
+                                            <else/>
+                                        </if>
+                                        <declare name="oldIndex" type="Integer" array="False" size=""/>
+                                        <assign variable="oldIndex" expression="row * 175 + col"/>
+                                        <if expression="grid[newIndex] == &quot;.&quot;">
+                                            <then>
+                                                <assign variable="grid[newIndex]" expression="&quot;#&quot;"/>
+                                            </then>
+                                            <else/>
+                                        </if>
+                                        <if expression="grid[oldIndex] == &quot;#&quot;">
+                                            <then>
+                                                <assign variable="grid[oldIndex]" expression="&quot;.&quot;"/>
+                                            </then>
+                                            <else/>
+                                        </if>
+                                        <if expression="grid[newIndex] == &quot;#&quot; &amp;&amp; grid[oldIndex] == &quot;.&quot;">
+                                            <then>
+                                                <if expression="bDebug == true">
+                                                    <then>
+                                                        <output expression="&quot;Elf moved.&quot;" newline="True"/>
+                                                    </then>
+                                                    <else/>
+                                                </if>
+                                                <assign variable="numOfMoves" expression="numOfMoves + 1"/>
+                                            </then>
+                                            <else/>
+                                        </if>
+                                    </then>
+                                    <else>
+                                        <if expression="bDebug == true">
+                                            <then>
+                                                <output expression="&quot;This move is not possible, &quot; &amp; numOfProposedMoves[newIndex]" newline="True"/>
+                                            </then>
+                                            <else/>
+                                        </if>
+                                    </else>
+                                </if>
+                            </then>
+                            <else/>
+                        </if>
+                    </for>
+                </for>
+            </for>
+        </body>
+    </function>
+    <function name="printGrid" type="None" variable="">
+        <parameters>
+            <parameter name="grid" type="String" array="True"/>
+        </parameters>
+        <body>
+            <declare name="row" type="Integer" array="False" size=""/>
+            <declare name="name" type="String" array="False" size=""/>
+            <assign variable="name" expression="&quot;grid.txt&quot;"/>
+            <open expression="name" mode="write"/>
+            <for variable="row" start="0" end="174" direction="inc" step="1">
+                <declare name="line" type="String" array="False" size=""/>
+                <assign variable="line" expression="&quot;&quot;"/>
+                <declare name="col" type="Integer" array="False" size=""/>
+                <for variable="col" start="0" end="174" direction="inc" step="1">
+                    <declare name="index" type="Integer" array="False" size=""/>
+                    <assign variable="index" expression="row * 175 + col"/>
+                    <assign variable="line" expression="line &amp; grid[index]"/>
+                </for>
+                <write expression="line"/>
+            </for>
+            <close mode="write"/>
+        </body>
+    </function>
+    <function name="readFromFile" type="None" variable="">
+        <parameters>
+            <parameter name="grid" type="String" array="True"/>
+        </parameters>
+        <body>
+            <output expression="&quot;Read from file&quot;" newline="True"/>
+            <declare name="line" type="String" array="False" size=""/>
+            <declare name="row" type="Integer" array="False" size=""/>
+            <assign variable="row" expression="0"/>
+            <declare name="col" type="Integer" array="False" size=""/>
+            <declare name="index" type="Integer" array="False" size=""/>
+            <declare name="name" type="String" array="False" size=""/>
+            <assign variable="name" expression="&quot;input.txt&quot;"/>
+            <open expression="name" mode="read"/>
+            <while expression="not EOF()">
+                <read variable="line"/>
+                <declare name="i" type="Integer" array="False" size=""/>
+                <assign variable="col" expression="0"/>
+                <for variable="i" start="0" end="74" direction="inc" step="1">
+                    <declare name="c" type="String" array="False" size=""/>
+                    <assign variable="c" expression="Char(line, i)"/>
+                    <assign variable="index" expression="(row+50) * 175 + (col+50)"/>
+                    <assign variable="grid[index]" expression="c"/>
+                    <assign variable="col" expression="col + 1"/>
+                </for>
+                <assign variable="row" expression="row + 1"/>
+            </while>
+            <close mode="read"/>
+            <call expression="printGrid(grid)"/>
+        </body>
+    </function>
+    <function name="resetArrays" type="None" variable="">
+        <parameters>
+            <parameter name="proposedMoves" type="Integer" array="True"/>
+            <parameter name="numOfProposedMoves" type="Integer" array="True"/>
+        </parameters>
+        <body>
+            <declare name="i" type="Integer" array="False" size=""/>
+            <for variable="i" start="0" end="30624" direction="inc" step="1">
+                <assign variable="numOfProposedMoves[i]" expression="0"/>
+            </for>
+            <for variable="i" start="0" end="61249" direction="inc" step="1">
+                <assign variable="proposedMoves[i]" expression="-1"/>
+            </for>
+        </body>
+    </function>
+    <function name="saveProposedMove" type="None" variable="">
+        <parameters>
+            <parameter name="proposedMoves" type="Integer" array="True"/>
+            <parameter name="numOfProposedMoves" type="Integer" array="True"/>
+            <parameter name="row" type="Integer" array="False"/>
+            <parameter name="col" type="Integer" array="False"/>
+            <parameter name="newRow" type="Integer" array="False"/>
+            <parameter name="newCol" type="Integer" array="False"/>
+        </parameters>
+        <body>
+            <declare name="bDebug" type="Boolean" array="False" size=""/>
+            <assign variable="bDebug" expression="false"/>
+            <declare name="index0, index1, index" type="Integer" array="False" size=""/>
+            <assign variable="index0" expression="row * (175 * 2) + col * 2 + 0"/>
+            <assign variable="proposedMoves[index0]" expression="newRow"/>
+            <assign variable="index1" expression="row * (175 * 2) + col * 2 + 1"/>
+            <assign variable="proposedMoves[index1]" expression="newCol"/>
+            <assign variable="index" expression="newRow * 175 + newCol"/>
+            <assign variable="numOfProposedMoves[index]" expression="numOfProposedMoves[index] + 1"/>
+            <if expression="bDebug == true">
+                <then>
+                    <output expression="&quot;Proposed move from &quot; &amp; row &amp; &quot;:&quot; &amp; col &amp; &quot; to &quot; &amp; newRow &amp; &quot;:&quot; &amp; newCol &amp; ToChar(13) &amp; &quot;proposedMoves[&quot; &amp; row &amp; &quot;][&quot; &amp; col &amp; &quot;][0]: &quot; &amp; newRow &amp; &quot;, &quot; &amp; index0 &amp; ToChar(13) &amp; &quot;proposedMoves[&quot; &amp; row &amp; &quot;][&quot; &amp; col &amp; &quot;][1]: &quot; &amp; newCol &amp; &quot;, &quot; &amp; index1 &amp; ToChar(13) &amp; &quot;numOfProposedMoves[&quot; &amp; newRow &amp; &quot;][&quot; &amp; newCol &amp; &quot;]:&quot; &amp; numOfProposedMoves[index] &amp; &quot;, &quot; &amp; index" newline="True"/>
+                </then>
+                <else/>
+            </if>
+        </body>
+    </function>
+    <function name="shuffleOrder" type="None" variable="">
+        <parameters>
+            <parameter name="northOrder" type="Integer" array="False"/>
+            <parameter name="southOrder" type="Integer" array="False"/>
+            <parameter name="westOrder" type="Integer" array="False"/>
+            <parameter name="eastOrder" type="Integer" array="False"/>
+        </parameters>
+        <body/>
+    </function>
+    <function name="startRound" type="Integer" variable="numOfMoves">
+        <parameters>
+            <parameter name="grid" type="String" array="True"/>
+            <parameter name="proposedMoves" type="Integer" array="True"/>
+            <parameter name="numOfProposedMoves" type="Integer" array="True"/>
+            <parameter name="numOfRounds" type="Integer" array="False"/>
+            <parameter name="searchDirections" type="Integer" array="True"/>
+            <parameter name="northOrder" type="Integer" array="False"/>
+            <parameter name="southOrder" type="Integer" array="False"/>
+            <parameter name="westOrder" type="Integer" array="False"/>
+            <parameter name="eastOrder" type="Integer" array="False"/>
+        </parameters>
+        <body>
+            <declare name="bDebug" type="Boolean" array="False" size=""/>
+            <assign variable="bDebug" expression="false"/>
+            <declare name="numOfMoves" type="Integer" array="False" size=""/>
+            <assign variable="numOfMoves" expression="0"/>
+            <call expression="checkForNeighbours(grid, proposedMoves, numOfProposedMoves, searchDirections, northOrder, southOrder, westOrder, eastOrder)"/>
+            <assign variable="numOfMoves" expression="performProposedMoves(grid, proposedMoves, numOfProposedMoves)"/>
+            <call expression="resetArrays(proposedMoves, numOfProposedMoves)"/>
+            <if expression="bDebug == true">
+                <then>
+                    <output expression="&quot;North: &quot; &amp; northOrder &amp; &quot;, South: &quot; &amp; southOrder &amp; &quot;, West: &quot; &amp; westOrder &amp; &quot;, eastOrder: &quot; &amp; eastOrder" newline="True"/>
+                </then>
+                <else/>
+            </if>
+        </body>
+    </function>
+    <function name="userInput" type="Integer" variable="numOfRounds">
+        <parameters/>
+        <body>
+            <output expression="&quot;How many rounds do you want to run? Below 0 or no input run until no more moves possible&quot;" newline="True"/>
+            <declare name="numOfRounds" type="Integer" array="False" size=""/>
+            <input variable="numOfRounds"/>
+        </body>
+    </function>
+</flowgorithm>
