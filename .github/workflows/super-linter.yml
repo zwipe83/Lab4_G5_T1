@@ -10,26 +10,14 @@ on:
 
 jobs:
   run-lint:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Check for new commits
-        id: check_commits
-        run: |
-          git fetch origin main
-          $newCommits = git log HEAD..origin/main --oneline
-          if ($newCommits) {
-            echo "new_commits=true" >> $GITHUB_ENV
-          } else {
-            echo "new_commits=false" >> $GITHUB_ENV
-          }
-
       - name: Lint Code Base
-        if: env.new_commits == 'true'
         uses: github/super-linter@v4
         env:
           VALIDATE_ALL_CODEBASE: false
