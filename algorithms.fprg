@@ -4,10 +4,10 @@
         <attribute name="name" value="algorithms"/>
         <attribute name="authors" value="Samuel Jeffman"/>
         <attribute name="about" value=""/>
-        <attribute name="saved" value="2024-11-23 05:22:35 PM"/>
+        <attribute name="saved" value="2024-11-25 10:45:21 PM"/>
         <attribute name="created" value="U2FtdWVsIEplZmZtYW47REVTS1RPUC1BNVVCMVYzOzIwMjQtMTEtMTc7MDE6MTU6NDMgUE07MzY1Ng=="/>
         <attribute name="edited" value="U2FtdWVsIEplZmZtYW47REVTS1RPUC1BNVVCMVYzOzIwMjQtMTEtMTc7MDQ6MTY6NTcgUE07NDY7MzgzMA=="/>
-        <attribute name="edited" value="c2plZmY7T01FTjI1TDsyMDI0LTExLTIzOzA1OjIyOjM1IFBNOzM5ODsyNTA3"/>
+        <attribute name="edited" value="c2plZmY7T01FTjI1TDsyMDI0LTExLTI1OzEwOjQ1OjIxIFBNOzQwMTsyNDkw"/>
     </attributes>
     <function name="Main" type="None" variable="">
         <parameters/>
@@ -311,7 +311,7 @@
                                                         <assign variable="newCol" expression="col + 0"/>
                                                         <if expression="newRow &gt;= 0 &amp;&amp; newRow &lt;= 174 &amp;&amp; newCol &gt;= 0 &amp;&amp; newCol &lt;= 174">
                                                             <then>
-                                                                <if expression="bDebug == true">
+                                                                <if expression="bDebug == false">
                                                                     <then>
                                                                         <output expression="&quot;Northward move possible from &quot; &amp; row &amp; &quot;:&quot; &amp; col &amp; &quot; to &quot; &amp; newRow &amp; &quot;:&quot; &amp; newCol" newline="True"/>
                                                                         <output expression="&quot;North it is&quot;" newline="True"/>
@@ -358,7 +358,7 @@
                                                         <assign variable="newCol" expression="col + 0"/>
                                                         <if expression="newRow &gt;= 0 &amp;&amp; newRow &lt;= 174 &amp;&amp; newCol &gt;= 0 &amp;&amp; newCol &lt;= 174">
                                                             <then>
-                                                                <if expression="bDebug == true">
+                                                                <if expression="bDebug == false">
                                                                     <then>
                                                                         <output expression="&quot;Southward move possible from &quot; &amp; row &amp; &quot;:&quot; &amp; col &amp; &quot; to &quot; &amp; newRow &amp; &quot;:&quot; &amp; newCol" newline="True"/>
                                                                         <output expression="&quot;Southie move&quot;" newline="True"/>
@@ -405,7 +405,7 @@
                                                         <assign variable="newCol" expression="col + (-1)"/>
                                                         <if expression="newRow &gt;= 0 &amp;&amp; newRow &lt;= 174 &amp;&amp; newCol &gt;= 0 &amp;&amp; newCol &lt;= 174">
                                                             <then>
-                                                                <if expression="bDebug == true">
+                                                                <if expression="bDebug == false">
                                                                     <then>
                                                                         <output expression="&quot;Westward move possible from &quot; &amp; row &amp; &quot;:&quot; &amp; col &amp; &quot; to &quot; &amp; newRow &amp; &quot;:&quot; &amp; newCol" newline="True"/>
                                                                         <output expression="&quot;Moving west&quot;" newline="True"/>
@@ -452,7 +452,7 @@
                                                         <assign variable="newCol" expression="col + 1"/>
                                                         <if expression="newRow &gt;= 0 &amp;&amp; newRow &lt;= 174 &amp;&amp; newCol &gt;= 0 &amp;&amp; newCol &lt;= 174">
                                                             <then>
-                                                                <if expression="bDebug == true">
+                                                                <if expression="bDebug == false">
                                                                     <then>
                                                                         <output expression="&quot;Eastward move possible from &quot; &amp; row &amp; &quot;:&quot; &amp; col &amp; &quot; to &quot; &amp; newRow &amp; &quot;:&quot; &amp; newCol" newline="True"/>
                                                                         <output expression="&quot;East we go&quot;" newline="True"/>

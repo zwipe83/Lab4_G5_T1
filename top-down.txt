@@ -119,6 +119,6 @@ checkForNeighbours - ok
 saveProposedMove - ok
 performProposedMoves - ok
 resetArrays - ok
-shuffleArray - maybe
+shuffleOrder - 
 calculateEmptyTiles - ok
 printGrid - ok

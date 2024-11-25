@@ -13,6 +13,7 @@
 
 typedef struct {
     char** grid;
+	int** hasNeighbours;
     int** searchDirections;
     int*** proposedMoves;
     int** numOfProposedMoves;
@@ -20,6 +21,15 @@ typedef struct {
 	int southOrder;
 	int westOrder;
 	int eastOrder;
+    int rows;
+	int cols;
+	int searchDirRows;
+	int searchDirCols;
+	int* northDirections;
+	int* southDirections;
+	int* westDirections;
+	int* eastDirections;
+
 } SimulationData;
 
 //extern const int searchDirections[16];
@@ -33,13 +43,13 @@ void freeSimulationData(SimulationData* data, int rows, int cols, int searchDirR
 //void loadInitialState();
 void checkForNeighbours();
 int calculateEmptyTiles();
-int performProposedMoves();
+int performProposedMoves(SimulationData* simData);
 void printGrid();
 void printGridToFile();
-void readFromFile();
-void resetArrarys();
-void saveProposedMove();
-void shuffleOrder();
+void readFromFile(SimulationData* simData);
+void resetArrays(SimulationData* simData);
+void saveProposedMove(SimulationData* simData, int row, int col, int newRow, int newCol);
+void shuffleOrder(SimulationData* simData);
 int startRound();
 
 #endif // FUNCTIONS_H_
