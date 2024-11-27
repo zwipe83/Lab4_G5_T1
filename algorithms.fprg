@@ -4,10 +4,10 @@
         <attribute name="name" value="algorithms"/>
         <attribute name="authors" value="Samuel Jeffman"/>
         <attribute name="about" value=""/>
-        <attribute name="saved" value="2024-11-25 10:45:21 PM"/>
+        <attribute name="saved" value="2024-11-27 10:02:37 PM"/>
         <attribute name="created" value="U2FtdWVsIEplZmZtYW47REVTS1RPUC1BNVVCMVYzOzIwMjQtMTEtMTc7MDE6MTU6NDMgUE07MzY1Ng=="/>
         <attribute name="edited" value="U2FtdWVsIEplZmZtYW47REVTS1RPUC1BNVVCMVYzOzIwMjQtMTEtMTc7MDQ6MTY6NTcgUE07NDY7MzgzMA=="/>
-        <attribute name="edited" value="c2plZmY7T01FTjI1TDsyMDI0LTExLTI1OzEwOjQ1OjIxIFBNOzQwMTsyNDkw"/>
+        <attribute name="edited" value="c2plZmY7T01FTjI1TDsyMDI0LTExLTI3OzEwOjAyOjM3IFBNOzQyODsyNTAx"/>
     </attributes>
     <function name="Main" type="None" variable="">
         <parameters/>
@@ -219,6 +219,12 @@
             <assign variable="eastDirections[3]" expression="1"/>
             <assign variable="eastDirections[4]" expression="1"/>
             <assign variable="eastDirections[5]" expression="1"/>
+            <declare name="nC, sC, wC, eC" type="Integer" array="False" size=""/>
+            <assign variable="nC" expression="0"/>
+            <assign variable="sC" expression="0"/>
+            <assign variable="wC" expression="0"/>
+            <assign variable="eC" expression="0"/>
+            <output expression="&quot;nO: &quot; &amp; northOrder &amp; &quot;, sO: &quot; &amp; southOrder &amp; &quot;, wO: &quot; &amp; westOrder &amp; &quot;, eO: &quot; &amp; eastOrder" newline="True"/>
             <for variable="row" start="0" end="174" direction="inc" step="1">
                 <declare name="col" type="Integer" array="False" size=""/>
                 <for variable="col" start="0" end="174" direction="inc" step="1">
@@ -311,15 +317,15 @@
                                                         <assign variable="newCol" expression="col + 0"/>
                                                         <if expression="newRow &gt;= 0 &amp;&amp; newRow &lt;= 174 &amp;&amp; newCol &gt;= 0 &amp;&amp; newCol &lt;= 174">
                                                             <then>
-                                                                <if expression="bDebug == false">
+                                                                <if expression="bDebug == true">
                                                                     <then>
                                                                         <output expression="&quot;Northward move possible from &quot; &amp; row &amp; &quot;:&quot; &amp; col &amp; &quot; to &quot; &amp; newRow &amp; &quot;:&quot; &amp; newCol" newline="True"/>
-                                                                        <output expression="&quot;North it is&quot;" newline="True"/>
                                                                     </then>
                                                                     <else/>
                                                                 </if>
                                                                 <assign variable="moveFound" expression="true"/>
                                                                 <call expression="saveProposedMove(proposedMoves, numOfProposedMoves, row, col, newRow, newCol)"/>
+                                                                <assign variable="nC" expression="nC + 1"/>
                                                             </then>
                                                             <else/>
                                                         </if>
@@ -358,15 +364,15 @@
                                                         <assign variable="newCol" expression="col + 0"/>
                                                         <if expression="newRow &gt;= 0 &amp;&amp; newRow &lt;= 174 &amp;&amp; newCol &gt;= 0 &amp;&amp; newCol &lt;= 174">
                                                             <then>
-                                                                <if expression="bDebug == false">
+                                                                <if expression="bDebug == true">
                                                                     <then>
                                                                         <output expression="&quot;Southward move possible from &quot; &amp; row &amp; &quot;:&quot; &amp; col &amp; &quot; to &quot; &amp; newRow &amp; &quot;:&quot; &amp; newCol" newline="True"/>
-                                                                        <output expression="&quot;Southie move&quot;" newline="True"/>
                                                                     </then>
                                                                     <else/>
                                                                 </if>
                                                                 <assign variable="moveFound" expression="true"/>
                                                                 <call expression="saveProposedMove(proposedMoves, numOfProposedMoves, row, col, newRow, newCol)"/>
+                                                                <assign variable="sC" expression="sC + 1"/>
                                                             </then>
                                                             <else/>
                                                         </if>
@@ -405,15 +411,15 @@
                                                         <assign variable="newCol" expression="col + (-1)"/>
                                                         <if expression="newRow &gt;= 0 &amp;&amp; newRow &lt;= 174 &amp;&amp; newCol &gt;= 0 &amp;&amp; newCol &lt;= 174">
                                                             <then>
-                                                                <if expression="bDebug == false">
+                                                                <if expression="bDebug == true">
                                                                     <then>
                                                                         <output expression="&quot;Westward move possible from &quot; &amp; row &amp; &quot;:&quot; &amp; col &amp; &quot; to &quot; &amp; newRow &amp; &quot;:&quot; &amp; newCol" newline="True"/>
-                                                                        <output expression="&quot;Moving west&quot;" newline="True"/>
                                                                     </then>
                                                                     <else/>
                                                                 </if>
                                                                 <assign variable="moveFound" expression="true"/>
                                                                 <call expression="saveProposedMove(proposedMoves, numOfProposedMoves, row, col, newRow, newCol)"/>
+                                                                <assign variable="wC" expression="wC + 1"/>
                                                             </then>
                                                             <else/>
                                                         </if>
@@ -452,15 +458,15 @@
                                                         <assign variable="newCol" expression="col + 1"/>
                                                         <if expression="newRow &gt;= 0 &amp;&amp; newRow &lt;= 174 &amp;&amp; newCol &gt;= 0 &amp;&amp; newCol &lt;= 174">
                                                             <then>
-                                                                <if expression="bDebug == false">
+                                                                <if expression="bDebug == true">
                                                                     <then>
                                                                         <output expression="&quot;Eastward move possible from &quot; &amp; row &amp; &quot;:&quot; &amp; col &amp; &quot; to &quot; &amp; newRow &amp; &quot;:&quot; &amp; newCol" newline="True"/>
-                                                                        <output expression="&quot;East we go&quot;" newline="True"/>
                                                                     </then>
                                                                     <else/>
                                                                 </if>
                                                                 <assign variable="moveFound" expression="true"/>
                                                                 <call expression="saveProposedMove(proposedMoves, numOfProposedMoves, row, col, newRow, newCol)"/>
+                                                                <assign variable="eC" expression="eC + 1"/>
                                                             </then>
                                                             <else/>
                                                         </if>
@@ -479,6 +485,7 @@
                     </if>
                 </for>
             </for>
+            <output expression="nC &amp; &quot;:&quot; &amp; sC &amp; &quot;:&quot; &amp; wC &amp; &quot;:&quot; &amp; eC &amp; &quot;, Total: &quot; &amp; nC+sC+wC+eC" newline="True"/>
         </body>
     </function>
     <function name="loadInitialState" type="None" variable="">
@@ -529,7 +536,7 @@
                 <for variable="col" start="0" end="174" direction="inc" step="1">
                     <declare name="coord" type="Integer" array="False" size=""/>
                     <assign variable="coord" expression="0"/>
-                    <for variable="coord" start="0" end="1" direction="inc" step="1">
+                    <for variable="coord" start="0" end="0" direction="inc" step="1">
                         <declare name="x, y" type="Integer" array="False" size=""/>
                         <assign variable="x" expression="row * (175 * 2) + col * 2 + 0"/>
                         <assign variable="y" expression="x + 1"/>
@@ -567,9 +574,9 @@
                                         </if>
                                         <if expression="grid[newIndex] == &quot;#&quot; &amp;&amp; grid[oldIndex] == &quot;.&quot;">
                                             <then>
-                                                <if expression="bDebug == true">
+                                                <if expression="bDebug == false">
                                                     <then>
-                                                        <output expression="&quot;Elf moved.&quot;" newline="True"/>
+                                                        <output expression="&quot;Elf moved from &quot; &amp; row &amp; &quot;:&quot; &amp; col &amp; &quot; to &quot; &amp; proposedMoves[x] &amp; &quot;:&quot; &amp; proposedMoves[y]" newline="True"/>
                                                     </then>
                                                     <else/>
                                                 </if>

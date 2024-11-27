@@ -21,8 +21,8 @@
 int main(void)
 {
     int numOfRounds = 0, numOfMoves = 0;
-    int rows = 175;
-    int cols = 175;
+    int rows = 250;
+    int cols = 250;
 	int coords = 2;
 	int searchDirRows = 8;
 	int searchDirCols = 2;
@@ -58,7 +58,7 @@ int main(void)
 		shuffleOrder(simData);
     }
 
-	//printGrid(simData);
+	printGrid(simData);
 
 	emptyTiles = calculateEmptyTiles(simData);
 

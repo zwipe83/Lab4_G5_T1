@@ -352,7 +352,7 @@ void resetArrays(SimulationData* simData)
 	}
 }
 
-int calculateEmptyTiles(SimulationData* simData)
+int calculateEmptyTiles(SimulationData* simData) // TODO: Complete implementation
 {
 	int emptyTiles = 0;
 
@@ -371,30 +371,36 @@ void printGrid(SimulationData* simData)
 
 void shuffleOrder(SimulationData* simData)
 {
-	// Shuffle the order of directions
-	int temp = simData->northOrder;
-	simData->northOrder = simData->southOrder;
-	simData->southOrder = simData->westOrder;
-	simData->westOrder = simData->eastOrder;
-	simData->eastOrder = temp;
+    // Shuffle the order of directions in the opposite order
+    int temp = simData->eastOrder;
+    simData->eastOrder = simData->westOrder;
+    simData->westOrder = simData->southOrder;
+    simData->southOrder = simData->northOrder;
+    simData->northOrder = temp;
 }
 
 void checkForNeighbours(SimulationData* simData)
 {
 	// Check for neighbours
-	printf("Checking for neighbours\n");
+	printf("Checking for neighbours\nnorthorder:%d\nsouthorder:%d\n\nwestorder:%d\n\neastorder:%d\n", simData->northOrder, simData->southOrder, simData->westOrder, simData->eastOrder);
+	int nC = 0, sC = 0, wC = 0, eC = 0;
 
 	for (int row = 0; row < simData->rows-1; row++)
 	{
 		//printf("Row %d\n", row);
 		for (int col = 0; col < simData->cols-1; col++)
 		{
+			if (row == 75 && col == 75)
+			{
+				//printGrid(simData);
+				int dummy = 0;
+			}
 			//printf("Col %d\n", col);
 			simData->hasNeighbours[row][col] = 0;
 			if (simData->grid[row][col] == '#')
 			{
 				//printf("Found %c at %d:%d", simData->grid[row][col],row,col);
-				for (int i = 0; i < 7; i++)
+				for (int i = 0; i <= 7; i++)
 				{
 					//printf("Checking direction %d\n", i);
 					int rowNew = row + simData->searchDirections[i][0];
@@ -417,12 +423,12 @@ void checkForNeighbours(SimulationData* simData)
 					int moveFound = 0;
 					int dx, dy, rowNew, colNew;
 
-					for (int count = 0; count < 3; count++)
+					for (int count = 0; count <= 3; count++)
 					{
 						movePossible = 1;
 						if (count == simData->northOrder && moveFound == 0) // North
 						{
-							for (int count2 = 0; count2 < 2; count2++)
+							for (int count2 = 0; count2 < 5; count2 += 2)
 							{
 								dx = simData->northDirections[count2];
 								dy = simData->northDirections[count2 + 1];
@@ -446,14 +452,15 @@ void checkForNeighbours(SimulationData* simData)
 								if (rowNew >= 0 && rowNew <= simData->rows - 1 && colNew >= 0 && colNew <= simData->cols - 1)
 								{
 									moveFound = 1;
-									printf("Move found, going north.\n");
+									//printf("Northward move possible from %d:%d to %d:%d\n", row, col, rowNew, colNew);
 									saveProposedMove(simData, row, col, rowNew, colNew);
+									nC++;
 								}
 							}
 						}
 						if (count == simData->southOrder && moveFound == 0) // South
 						{
-							for (int count2 = 0; count2 < 2; count2++)
+							for (int count2 = 0; count2 < 6; count2 += 2)
 							{
 								dx = simData->southDirections[count2];
 								dy = simData->southDirections[count2 + 1];
@@ -477,14 +484,15 @@ void checkForNeighbours(SimulationData* simData)
 								if (rowNew >= 0 && rowNew <= simData->rows - 1 && colNew >= 0 && colNew <= simData->cols - 1)
 								{
 									moveFound = 1;
-									printf("Move found, going south.\n");
+									//printf("Southward move possible from %d:%d to %d:%d\n", row, col, rowNew, colNew);
 									saveProposedMove(simData, row, col, rowNew, colNew);
+									sC++;
 								}
 							}
 						}
 						if (count == simData->westOrder && moveFound == 0) //West
 						{
-							for (int count2 = 0; count2 < 2; count2++)
+							for (int count2 = 0; count2 < 6; count2 += 2)
 							{
 								dx = simData->westDirections[count2];
 								dy = simData->westDirections[count2 + 1];
@@ -508,14 +516,15 @@ void checkForNeighbours(SimulationData* simData)
 								if (rowNew >= 0 && rowNew <= simData->rows - 1 && colNew >= 0 && colNew <= simData->cols - 1)
 								{
 									moveFound = 1;
-									printf("Move found, going west.\n");
+									//printf("Westward move possible from %d:%d to %d:%d\n", row, col, rowNew, colNew);
 									saveProposedMove(simData, row, col, rowNew, colNew);
+									wC++;
 								}
 							}
 						}
 						if (count == simData->eastOrder && moveFound == 0) // East
 						{
-							for (int count2 = 0; count2 < 2; count2++)
+							for (int count2 = 0; count2 < 6; count2 += 2)
 							{
 								dx = simData->eastDirections[count2];
 								dy = simData->eastDirections[count2 + 1];
@@ -539,8 +548,9 @@ void checkForNeighbours(SimulationData* simData)
 								if (rowNew >= 0 && rowNew <= simData->rows - 1 && colNew >= 0 && colNew <= simData->cols - 1)
 								{
 									moveFound = 1;
-									printf("Move found, going east.\n");
+									//printf("Eastward move possible from %d:%d to %d:%d\n", row, col, rowNew, colNew);
 									saveProposedMove(simData, row, col, rowNew, colNew);
+									eC++;
 								}
 							}
 						}
@@ -553,10 +563,15 @@ void checkForNeighbours(SimulationData* simData)
 
 void saveProposedMove(SimulationData* simData, int row, int col, int newRow, int newCol)
 {
+	if (newRow == 67 && newCol == 126)
+	{
+		int dummy = 0;
+	}
+
 	simData->proposedMoves[row][col][0] = newRow;
 	simData->proposedMoves[row][col][1] = newCol;
-	simData->numOfProposedMoves[row][col] += 1;
-	printf("Proposed move from %d:%d to %d:%d\n", row, col, newRow, newCol);
+	simData->numOfProposedMoves[newRow][newCol] += 1;
+	//printf("Proposed move from %d:%d to %d:%d\n", row, col, newRow, newCol);
 }
 
 int performProposedMoves(SimulationData* simData)
@@ -565,27 +580,34 @@ int performProposedMoves(SimulationData* simData)
 	
 	printf("Performing proposed moves\n");
 
+
 	for (int row = 0; row < simData->rows - 1; row++)
 	{
 		for (int col = 0; col < simData->cols - 1; col++)
 		{
+			if (row == 67 && col == 125)
+			{
+				int dummy = 0;
+			}
 			if (simData->proposedMoves[row][col][0] != -1 && simData->proposedMoves[row][col][1] != -1)
 			{
 				int newRow = simData->proposedMoves[row][col][0];
 				int newCol = simData->proposedMoves[row][col][1];
+				//printf("numofproposedmoves: %d\n", simData->numOfProposedMoves[newRow][newCol]);
 				if (simData->numOfProposedMoves[newRow][newCol] == 1)
 				{
 					//printGrid(simData);
 					//int dummy = 0;
-					printf("Moving from %d:%d to %d:%d\n", row, col, newRow, newCol);
-					printf("Char: %c\n", simData->grid[newRow][newCol]);
-					if (simData->grid[newRow][newCol] == '.')
+					//printf("Moving from %d:%d to %d:%d\n", row, col, newRow, newCol);
+					//printf("Char: %c\n", simData->grid[newRow][newCol]);
+					if (1 || simData->grid[newRow][newCol] == '.') // TODO: Remove the 1 || to enable the check for empty tiles. There is obviously a bug here. Could be related to readFromFile() or the grid allocation.
 					{
 						simData->grid[newRow][newCol] = '#';
 						simData->grid[row][col] = '.';
 						if (simData->grid[newRow][newCol] == '#' && simData->grid[row][col] == '.')
 						{
 							numOfMoves++;
+							//printf("Elf moved from %d:%d to %d:%d\n", row, col, newRow, newCol);
 						}
 					}
 					else
@@ -614,7 +636,7 @@ void readFromFile(SimulationData* simData)
 
 	while ((ch = fgetc(fp)) != EOF) {
 		if (ch == '\n') {
-			simData->grid[row+50][col+50] = '\0';  // Null-terminate the string
+			simData->grid[row+51][col+51] = '\0';  // Null-terminate the string
 			row++;
 			col = 0;
 		}
@@ -623,5 +645,6 @@ void readFromFile(SimulationData* simData)
 			col++;
 		}
 	}
-	simData->grid[row][col] = '\0';  // Null-terminate the last string
+	simData->grid[row+50][col+50] = '\0';  // Null-terminate the last string
+	//printGrid(simData);
 }
