@@ -12,37 +12,33 @@
 #include <stdlib.h>
 #include "functions.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include "functions.h"
-
-
-
 int main(void)
 {
-    int numOfRounds = 0, numOfMoves = 0;
-    int rows = 250;
-    int cols = 250;
-	int coords = 2;
-	int searchDirRows = 8;
-	int searchDirCols = 2;
-	int emptyTiles = 0;
+    int numOfRounds = 0, numOfMoves = 0, emptyTiles = 0;
+
+	GridInfo gridInfo;
+
+	int* gridSize = getGridSize();
+	gridInfo.factor = 3;
+	gridInfo.rows = gridSize[0] * gridInfo.factor;
+	gridInfo.cols = gridSize[1] * gridInfo.factor;
+	gridInfo.coords = 2;
+	gridInfo.searchDirRows = 8;
+	gridInfo.searchDirCols = 2;
 
     SimulationData* simData = NULL;
+    simData = allocateSimulationData(gridInfo);
 
-    simData = allocateSimulationData(rows, cols, coords, searchDirRows, searchDirCols);
     printf("Welcome to Elf Sim 2024\n");
 
 	readFromFile(simData);
-	//printGrid(simData);
 
     numOfRounds = userInput(numOfRounds);
     printf("You have chosen to simulate %d rounds\n", numOfRounds);
-    //printf("%c", simData->grid[21][26]);
-    //printf("%d", simData->searchDirections[4][1]);
 
     for (int roundCount = 1; roundCount <= numOfRounds; roundCount++)
     {
+		system("cls");
 		printf("Starting round %d\n", roundCount);
 
 		numOfMoves = startRound(simData);
@@ -56,6 +52,10 @@ int main(void)
 		}
 
 		shuffleOrder(simData);
+		if (roundCount % 10 == 0)
+		{
+			//printGrid(simData);
+		}
     }
 
 	printGrid(simData);
@@ -64,7 +64,7 @@ int main(void)
 
 	printf("There are %d empty tiles\n", emptyTiles);
 
-    freeSimulationData(simData, rows, cols, searchDirRows);
+    freeSimulationData(simData, gridInfo);
 
     return 0;
 }

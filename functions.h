@@ -32,24 +32,45 @@ typedef struct {
 
 } SimulationData;
 
+typedef struct
+{
+	int rows;
+	int cols;
+	int coords;
+	int searchDirRows;
+	int searchDirCols;
+	float factor;
+
+} GridInfo;
+
+typedef struct
+{
+	int row;
+	int col;
+} Position;
+
 //extern const int searchDirections[16];
 int userInput(int numOfRounds);
 char** allocateGrid(int rows, int cols);
 int** allocateSearchDirections(int rows, int cols);
 int*** allocateProposedMoves(int rows, int cols, int coords);
 int** allocateNumOfProposedMoves(int rows, int cols);
-SimulationData* allocateSimulationData(int rows, int cols, int coords, int searchDirRows, int searchDirCols);
-void freeSimulationData(SimulationData* data, int rows, int cols, int searchDirRows);
+SimulationData* allocateSimulationData(GridInfo gridInfo);
+void freeSimulationData(SimulationData* data, GridInfo gridInfo);
 //void loadInitialState();
-void checkForNeighbours();
-int calculateEmptyTiles();
+void checkForNeighbours(SimulationData* simData);
+int calculateEmptyTiles(SimulationData* simData);
 int performProposedMoves(SimulationData* simData);
-void printGrid();
-void printGridToFile();
+void printGrid(SimulationData* simData);
+//void printGridToFile();
 void readFromFile(SimulationData* simData);
 void resetArrays(SimulationData* simData);
 void saveProposedMove(SimulationData* simData, int row, int col, int newRow, int newCol);
 void shuffleOrder(SimulationData* simData);
-int startRound();
+int startRound(SimulationData* simData);
+int* getGridSize();
+
+void checkForMoves(SimulationData* simData, Position position);
+int checkMove(SimulationData* simData, Position position, int* directions);
 
 #endif // FUNCTIONS_H_

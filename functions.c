@@ -232,24 +232,24 @@ int* allocateDirections(int rows)
 	return directions;
 }
 
-void freeSimulationData(SimulationData* data, int rows, int cols, int searchDirRows) {
+void freeSimulationData(SimulationData* data, GridInfo gridInfo) {
 	if (data == NULL) return;
 
 	// Free grid
-	for (int i = 0; i < rows; i++) {
+	for (int i = 0; i < gridInfo.rows; i++) {
 		free(data->grid[i]);
 	}
 	free(data->grid);
 
 	// Free searchDirections
-	for (int i = 0; i < searchDirRows; i++) {
+	for (int i = 0; i < gridInfo.searchDirRows; i++) {
 		free(data->searchDirections[i]);
 	}
 	free(data->searchDirections);
 
 	// Free proposedMoves
-	for (int i = 0; i < rows; i++) {
-		for (int j = 0; j < cols; j++) {
+	for (int i = 0; i < gridInfo.rows; i++) {
+		for (int j = 0; j < gridInfo.cols; j++) {
 			free(data->proposedMoves[i][j]);
 		}
 		free(data->proposedMoves[i]);
@@ -257,7 +257,7 @@ void freeSimulationData(SimulationData* data, int rows, int cols, int searchDirR
 	free(data->proposedMoves);
 
 	// Free numOfProposedMoves
-	for (int i = 0; i < rows; i++) {
+	for (int i = 0; i < gridInfo.rows; i++) {
 		free(data->numOfProposedMoves[i]);
 	}
 	free(data->numOfProposedMoves);
@@ -267,27 +267,27 @@ void freeSimulationData(SimulationData* data, int rows, int cols, int searchDirR
 }
 
 
-SimulationData* allocateSimulationData(int rows, int cols, int coords, int searchDirRows, int searchDirCols) {
+SimulationData* allocateSimulationData(GridInfo gridInfo) {
 	SimulationData* data = (SimulationData*)malloc(sizeof(SimulationData));
 	if (data == NULL) {
 		fprintf(stderr, "Memory allocation failed\n");
 		exit(EXIT_FAILURE);
 	}
 
-	data->grid = allocateGrid(rows, cols);
-	data->searchDirections = allocateSearchDirections(searchDirRows, searchDirCols);
-	data->proposedMoves = allocateProposedMoves(rows, cols, coords);
-	data->numOfProposedMoves = allocateNumOfProposedMoves(rows, cols);
-	data->hasNeighbours = allocateHasNeighbours(rows, cols);
+	data->grid = allocateGrid(gridInfo.rows, gridInfo.cols);
+	data->searchDirections = allocateSearchDirections(gridInfo.searchDirRows, gridInfo.searchDirCols);
+	data->proposedMoves = allocateProposedMoves(gridInfo.rows, gridInfo.cols, gridInfo.coords);
+	data->numOfProposedMoves = allocateNumOfProposedMoves(gridInfo.rows, gridInfo.cols);
+	data->hasNeighbours = allocateHasNeighbours(gridInfo.rows, gridInfo.cols);
 	// Initial order of directions
 	data->northOrder = 0;
 	data->southOrder = 1;
 	data->westOrder = 2;
 	data->eastOrder = 3;
-	data->rows = rows;
-	data->cols = cols;
-	data->searchDirRows = searchDirRows;
-	data->searchDirCols = searchDirCols;
+	data->rows = gridInfo.rows;
+	data->cols = gridInfo.cols;
+	data->searchDirRows = gridInfo.searchDirRows;
+	data->searchDirCols = gridInfo.searchDirCols;
 	data->northDirections = allocateDirections(6);
 	data->southDirections = allocateDirections(6);
 	data->westDirections = allocateDirections(6);
@@ -382,19 +382,14 @@ void shuffleOrder(SimulationData* simData)
 void checkForNeighbours(SimulationData* simData)
 {
 	// Check for neighbours
-	printf("Checking for neighbours\nnorthorder:%d\nsouthorder:%d\n\nwestorder:%d\n\neastorder:%d\n", simData->northOrder, simData->southOrder, simData->westOrder, simData->eastOrder);
-	int nC = 0, sC = 0, wC = 0, eC = 0;
+	//printf("Checking for neighbours\nnorthorder:%d\nsouthorder:%d\n\nwestorder:%d\n\neastorder:%d\n", simData->northOrder, simData->southOrder, simData->westOrder, simData->eastOrder);
+	printf("Checking for neighbours\n");
 
 	for (int row = 0; row < simData->rows-1; row++)
 	{
 		//printf("Row %d\n", row);
 		for (int col = 0; col < simData->cols-1; col++)
 		{
-			if (row == 75 && col == 75)
-			{
-				//printGrid(simData);
-				int dummy = 0;
-			}
 			//printf("Col %d\n", col);
 			simData->hasNeighbours[row][col] = 0;
 			if (simData->grid[row][col] == '#')
@@ -418,156 +413,78 @@ void checkForNeighbours(SimulationData* simData)
 				}
 				if(simData->hasNeighbours[row][col] == 1)
 				{
-					//printf("Tile %d:%d has neighbours\n", row, col);
-					int movePossible = 0;
-					int moveFound = 0;
-					int dx, dy, rowNew, colNew;
+					Position position;
+					position.row = row;
+					position.col = col;
 
-					for (int count = 0; count <= 3; count++)
-					{
-						movePossible = 1;
-						if (count == simData->northOrder && moveFound == 0) // North
-						{
-							for (int count2 = 0; count2 < 5; count2 += 2)
-							{
-								dx = simData->northDirections[count2];
-								dy = simData->northDirections[count2 + 1];
-
-								rowNew = row + dx;
-								colNew = col + dy;
-
-								if (rowNew >= 0 && rowNew <= simData->rows - 1 && colNew >= 0 && colNew <= simData->cols - 1)
-								{
-									if (simData->grid[rowNew][colNew] == '#')
-									{
-										movePossible = 0;
-										//break;
-									}
-								}
-							}
-							if (movePossible == 1)
-							{
-								rowNew = row + simData->northDirections[2];
-								colNew = col + simData->northDirections[3];
-								if (rowNew >= 0 && rowNew <= simData->rows - 1 && colNew >= 0 && colNew <= simData->cols - 1)
-								{
-									moveFound = 1;
-									//printf("Northward move possible from %d:%d to %d:%d\n", row, col, rowNew, colNew);
-									saveProposedMove(simData, row, col, rowNew, colNew);
-									nC++;
-								}
-							}
-						}
-						if (count == simData->southOrder && moveFound == 0) // South
-						{
-							for (int count2 = 0; count2 < 6; count2 += 2)
-							{
-								dx = simData->southDirections[count2];
-								dy = simData->southDirections[count2 + 1];
-
-								rowNew = row + dx;
-								colNew = col + dy;
-
-								if (rowNew >= 0 && rowNew <= simData->rows - 1 && colNew >= 0 && colNew <= simData->cols - 1)
-								{
-									if (simData->grid[rowNew][colNew] == '#')
-									{
-										movePossible = 0;
-										//break;
-									}
-								}
-							}
-							if (movePossible == 1)
-							{
-								rowNew = row + simData->southDirections[2];
-								colNew = col + simData->southDirections[3];
-								if (rowNew >= 0 && rowNew <= simData->rows - 1 && colNew >= 0 && colNew <= simData->cols - 1)
-								{
-									moveFound = 1;
-									//printf("Southward move possible from %d:%d to %d:%d\n", row, col, rowNew, colNew);
-									saveProposedMove(simData, row, col, rowNew, colNew);
-									sC++;
-								}
-							}
-						}
-						if (count == simData->westOrder && moveFound == 0) //West
-						{
-							for (int count2 = 0; count2 < 6; count2 += 2)
-							{
-								dx = simData->westDirections[count2];
-								dy = simData->westDirections[count2 + 1];
-
-								rowNew = row + dx;
-								colNew = col + dy;
-
-								if (rowNew >= 0 && rowNew <= simData->rows - 1 && colNew >= 0 && colNew <= simData->cols - 1)
-								{
-									if (simData->grid[rowNew][colNew] == '#')
-									{
-										movePossible = 0;
-										//break;
-									}
-								}
-							}
-							if (movePossible == 1)
-							{
-								rowNew = row + simData->westDirections[2];
-								colNew = col + simData->westDirections[3];
-								if (rowNew >= 0 && rowNew <= simData->rows - 1 && colNew >= 0 && colNew <= simData->cols - 1)
-								{
-									moveFound = 1;
-									//printf("Westward move possible from %d:%d to %d:%d\n", row, col, rowNew, colNew);
-									saveProposedMove(simData, row, col, rowNew, colNew);
-									wC++;
-								}
-							}
-						}
-						if (count == simData->eastOrder && moveFound == 0) // East
-						{
-							for (int count2 = 0; count2 < 6; count2 += 2)
-							{
-								dx = simData->eastDirections[count2];
-								dy = simData->eastDirections[count2 + 1];
-
-								rowNew = row + dx;
-								colNew = col + dy;
-
-								if (rowNew >= 0 && rowNew <= simData->rows - 1 && colNew >= 0 && colNew <= simData->cols - 1)
-								{
-									if (simData->grid[rowNew][colNew] == '#')
-									{
-										movePossible = 0;
-										//break;
-									}
-								}
-							}
-							if (movePossible == 1)
-							{
-								rowNew = row + simData->eastDirections[2];
-								colNew = col + simData->eastDirections[3];
-								if (rowNew >= 0 && rowNew <= simData->rows - 1 && colNew >= 0 && colNew <= simData->cols - 1)
-								{
-									moveFound = 1;
-									//printf("Eastward move possible from %d:%d to %d:%d\n", row, col, rowNew, colNew);
-									saveProposedMove(simData, row, col, rowNew, colNew);
-									eC++;
-								}
-							}
-						}
-					}
+					checkForMoves(simData, position);
 				}
 			}
 		}
 	}
 }
 
+void checkForMoves(SimulationData* simData, Position position)
+{
+	//printf("Tile %d:%d has neighbours\n", row, col);
+	int movePossible = 0;
+	int moveFound = 0;
+
+	for (int count = 0; count <= 3; count++)
+	{
+		movePossible = 1;
+		if (count == simData->northOrder && moveFound == 0) // North
+		{
+			moveFound = checkMove(simData, position, simData->northDirections);
+		}
+		if (count == simData->southOrder && moveFound == 0) // South
+		{
+			moveFound = checkMove(simData, position, simData->southDirections);
+		}
+		if (count == simData->westOrder && moveFound == 0) //West
+		{
+			moveFound = checkMove(simData, position, simData->westDirections);
+		}
+		if (count == simData->eastOrder && moveFound == 0) // East
+		{
+			moveFound = checkMove(simData, position, simData->eastDirections);
+		}
+	}
+}
+
+int checkMove(SimulationData* simData, Position position, int* directions)
+{
+    int dx, dy, rowNew, colNew, moveFound = 0;
+    for (int count2 = 0; count2 < 5; count2 += 2)
+    {
+        dx = directions[count2];
+        dy = directions[count2 + 1];
+
+        rowNew = position.row + dx;
+        colNew = position.col + dy;
+
+        if (rowNew >= 0 && rowNew <= simData->rows - 1 && colNew >= 0 && colNew <= simData->cols - 1)
+        {
+            if (simData->grid[rowNew][colNew] == '#')
+            {
+                return moveFound;
+            }
+        }
+    }
+
+    rowNew = position.row + directions[2];
+    colNew = position.col + directions[3];
+    if (rowNew >= 0 && rowNew <= simData->rows - 1 && colNew >= 0 && colNew <= simData->cols - 1)
+    {
+        moveFound = 1;
+        saveProposedMove(simData, position.row, position.col, rowNew, colNew);
+    }
+
+    return moveFound;
+}
+
 void saveProposedMove(SimulationData* simData, int row, int col, int newRow, int newCol)
 {
-	if (newRow == 67 && newCol == 126)
-	{
-		int dummy = 0;
-	}
-
 	simData->proposedMoves[row][col][0] = newRow;
 	simData->proposedMoves[row][col][1] = newCol;
 	simData->numOfProposedMoves[newRow][newCol] += 1;
@@ -585,10 +502,6 @@ int performProposedMoves(SimulationData* simData)
 	{
 		for (int col = 0; col < simData->cols - 1; col++)
 		{
-			if (row == 67 && col == 125)
-			{
-				int dummy = 0;
-			}
 			if (simData->proposedMoves[row][col][0] != -1 && simData->proposedMoves[row][col][1] != -1)
 			{
 				int newRow = simData->proposedMoves[row][col][0];
@@ -609,10 +522,6 @@ int performProposedMoves(SimulationData* simData)
 							numOfMoves++;
 							//printf("Elf moved from %d:%d to %d:%d\n", row, col, newRow, newCol);
 						}
-					}
-					else
-					{
-						int dummy = 0;
 					}
 				}
 			}
@@ -647,4 +556,58 @@ void readFromFile(SimulationData* simData)
 	}
 	simData->grid[row+50][col+50] = '\0';  // Null-terminate the last string
 	//printGrid(simData);
+}
+
+int* getGridSize()
+{
+	FILE* file; errno_t err = fopen_s(&file, "input.txt", "r"); if (err != 0) 
+	{ 
+		perror("Unable to open file"); 
+		return EXIT_FAILURE; 
+	} 
+	int rows = 0; 
+	int cols = 0; 
+	int max_cols = 0; 
+	char ch; 
+	static int size[2] = { 0, 0 };
+	// Count the number of rows and columns 
+	while ((ch = fgetc(file)) != EOF) 
+	{ 
+		if (ch == '.' || ch == '#')
+		{ 
+			cols++; 
+		} 
+		else if (ch == '\n') 
+		{ 
+			rows++; 
+			if (cols > max_cols) 
+			{ 
+				max_cols = cols; 
+			} 
+			cols = 0; 
+		} 
+	} 
+	// Account for the last row if there's no newline at the end of the file 
+	if (cols > 0) 
+	{ 
+		rows++; 
+		if (cols > max_cols) 
+		{ 
+			max_cols = cols; 
+		} 
+	} 
+	// Columns are spaces + 1 
+	/*if (max_cols > 0)
+	{
+		max_cols += 1;
+	}
+	else
+	{
+		max_cols = 0;
+	}*/
+
+	size[0] = rows;
+	size[1] = max_cols;
+
+	return size;
 }
