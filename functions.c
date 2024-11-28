@@ -182,39 +182,6 @@ int** allocateNumOfProposedMoves(int rows, int cols)
 	return numOfProposedMoves;
 }
 
-int** allocateHasNeighbours(int rows, int cols)
-{
-	// Allocate memory for the array of pointers (rows) 
-	int** hasNeighbours = malloc(rows * sizeof(int*));
-	if (hasNeighbours == NULL) {
-		printf("Memory allocation failed\n");
-		return NULL;
-	}
-
-	// Allocate memory for each row (columns) 
-	for (int i = 0; i < rows; i++) {
-		hasNeighbours[i] = malloc(cols * sizeof(int));
-		if (hasNeighbours[i] == NULL) {
-			printf("Memory allocation failed\n");
-			// Free previously allocated memory 
-			for (int j = 0; j < i; j++) {
-				free(hasNeighbours[j]);
-			}
-			free(hasNeighbours);
-			return NULL;
-		}
-	}
-
-	// Initialize the array with some values (e.g., 0)
-	for (int i = 0; i < rows; i++) {
-		for (int j = 0; j < cols; j++) {
-			hasNeighbours[i][j] = 0;
-		}
-	}
-
-	return hasNeighbours;
-}
-
 int* allocateDirections(int rows)
 {
 	// Allocate memory for the array of pointers (rows) 
@@ -236,31 +203,47 @@ void freeSimulationData(SimulationData* data, GridInfo gridInfo) {
 	if (data == NULL) return;
 
 	// Free grid
-	for (int i = 0; i < gridInfo.rows; i++) {
-		free(data->grid[i]);
+	if (data->grid != NULL)
+	{
+		for (int i = 0; i < gridInfo.rows; i++)
+		    {
+			free (data->grid[i]);
+		    }
+		free (data->grid);
 	}
-	free(data->grid);
 
 	// Free searchDirections
-	for (int i = 0; i < gridInfo.searchDirRows; i++) {
-		free(data->searchDirections[i]);
+	if (data->searchDirections != NULL)
+	{
+		for (int i = 0; i < gridInfo.searchDirRows; i++)
+		    {
+			free (data->searchDirections[i]);
+		    }
+		free (data->searchDirections);
 	}
-	free(data->searchDirections);
 
 	// Free proposedMoves
-	for (int i = 0; i < gridInfo.rows; i++) {
-		for (int j = 0; j < gridInfo.cols; j++) {
-			free(data->proposedMoves[i][j]);
+	if (data->proposedMoves != NULL) {
+		for (int i = 0; i < gridInfo.rows; i++) {
+			if (data->proposedMoves[i] != NULL) {
+				for (int j = 0; j < gridInfo.cols; j++) {
+					free(data->proposedMoves[i][j]);
+				}
+				free(data->proposedMoves[i]);
+			}
 		}
-		free(data->proposedMoves[i]);
+		free(data->proposedMoves);
 	}
-	free(data->proposedMoves);
 
 	// Free numOfProposedMoves
-	for (int i = 0; i < gridInfo.rows; i++) {
-		free(data->numOfProposedMoves[i]);
+	if (data->numOfProposedMoves != NULL)
+	{
+		for (int i = 0; i < gridInfo.rows; i++)
+		    {
+			free (data->numOfProposedMoves[i]);
+		    }
+		free (data->numOfProposedMoves);
 	}
-	free(data->numOfProposedMoves);
 
 	// Free the SimulationData structure itself
 	free(data);
@@ -278,14 +261,16 @@ SimulationData* allocateSimulationData(GridInfo gridInfo) {
 	data->searchDirections = allocateSearchDirections(gridInfo.searchDirRows, gridInfo.searchDirCols);
 	data->proposedMoves = allocateProposedMoves(gridInfo.rows, gridInfo.cols, gridInfo.coords);
 	data->numOfProposedMoves = allocateNumOfProposedMoves(gridInfo.rows, gridInfo.cols);
-	data->hasNeighbours = allocateHasNeighbours(gridInfo.rows, gridInfo.cols);
 	// Initial order of directions
 	data->northOrder = 0;
 	data->southOrder = 1;
 	data->westOrder = 2;
 	data->eastOrder = 3;
-	data->rows = gridInfo.rows;
-	data->cols = gridInfo.cols;
+
+	data->gridInfo.rows = gridInfo.rows;
+	data->gridInfo.cols = gridInfo.cols;
+	data->gridInfo.coords = gridInfo.coords;
+	data->gridInfo.factor = gridInfo.factor;
 	data->searchDirRows = gridInfo.searchDirRows;
 	data->searchDirCols = gridInfo.searchDirCols;
 	data->northDirections = allocateDirections(6);
@@ -336,33 +321,134 @@ int startRound(SimulationData* simData)
 void resetArrays(SimulationData* simData)
 {
 	// Reset proposedMoves
-	for (int i = 0; i < simData->rows; i++) {
-		for (int j = 0; j < simData->cols; j++) {
-			for (int k = 0; k < 2; k++) {
+	for (int i = 0; i < simData->gridInfo.rows; i++) 
+	{
+		for (int j = 0; j < simData->gridInfo.cols; j++)
+		{
+			for (int k = 0; k < 2; k++) 
+			{
 				simData->proposedMoves[i][j][k] = -1;
 			}
 		}
 	}
 
 	// Reset numOfProposedMoves
-	for (int i = 0; i < simData->rows; i++) {
-		for (int j = 0; j < simData->cols; j++) {
+	for (int i = 0; i < simData->gridInfo.rows; i++)
+	{
+		for (int j = 0; j < simData->gridInfo.cols; j++)
+		{
 			simData->numOfProposedMoves[i][j] = 0;
 		}
 	}
 }
 
-int calculateEmptyTiles(SimulationData* simData) // TODO: Complete implementation
+int checkEmptyTiles(SimulationData* simData) // TODO: Complete implementation
 {
 	int emptyTiles = 0;
+
+	int top = 0, bottom = simData->gridInfo.rows - 1;
+	int left = 0, right = simData->gridInfo.cols - 1;
+	int topFound = 0, rightFound = 0, bottomFound = 0, leftFound = 0;
+	int topRow = 0, rightCol = 0, bottomRow = 0, leftCol = 0;
+
+	while (top <= bottom && left <= right) {
+		// Parse the top row
+		if (!topFound) 
+		{
+			for (int col = left; col <= right; col++) 
+			{
+				if (simData->grid[top][col] == '#') 
+				{
+					topFound = 1;
+					printf("Top #: (%d, %d)\n", top, col);
+					topRow = top;
+					break;
+				}
+			}
+			top++;
+		}
+
+		// Parse the rightmost column
+		if (!rightFound) 
+		{
+			for (int row = top; row <= bottom; row++) 
+			{
+				if (simData->grid[row][right] == '#') 
+				{
+					rightFound = 1;
+					printf("Right #: (%d, %d)\n", row, right);
+					rightCol = right;
+					break;
+				}
+			}
+			right--;
+		}
+
+		// Parse the bottom row
+		if (!bottomFound) 
+		{
+			for (int col = right; col >= left; col--) 
+			{
+				if (simData->grid[bottom][col] == '#') 
+				{
+					bottomFound = 1;
+					printf("Bottom #: (%d, %d)\n", bottom, col);
+					bottomRow = bottom;
+					break;
+				}
+			}
+			bottom--;
+		}
+
+		// Parse the leftmost column
+		if (!leftFound) {
+			for (int row = bottom; row >= top; row--) {
+				if (simData->grid[row][left] == '#') {
+					leftFound = 1;
+					printf("Left #: (%d, %d)\n", row, left);
+					leftCol = left;
+					break;
+				}
+			}
+			left++;
+		}
+		// Break out of the loop if all '#' are found 
+		if (topFound && rightFound && bottomFound && leftFound) 
+		{ 
+			break; 
+		}
+	}
+	printf("Top row: %d\nRight column: %d\nBottom row: %d\nLeft column: %d\n", topRow, rightCol, bottomRow, leftCol);
+
+	for (int row = topRow; row <= bottomRow; row++)
+	{
+		for (int col = leftCol; col <= rightCol; col++)
+		{
+			if (simData->grid[row][col] == '.')
+			{
+				emptyTiles++;
+			}
+			else if (simData->grid[row][col] == '#')
+			{
+				//Nothing
+			}
+			else
+			{
+				printf("Error: Invalid character in grid: %c\n", simData->grid[row][col]);
+				emptyTiles++;
+			}
+		}
+	}
 
 	return emptyTiles;
 }
 
 void printGrid(SimulationData* simData)
 {
-	for (int i = 0; i < simData->rows; i++) {
-		for (int j = 0; j < simData->cols; j++) {
+    for (int i = 0; i < simData->gridInfo.rows; i++)
+	{
+	    for (int j = 0; j < simData->gridInfo.cols; j++)
+		{
 			printf("%c", simData->grid[i][j]);
 		}
 		printf("\n");
@@ -381,17 +467,17 @@ void shuffleOrder(SimulationData* simData)
 
 void checkForNeighbours(SimulationData* simData)
 {
-	// Check for neighbours
 	//printf("Checking for neighbours\nnorthorder:%d\nsouthorder:%d\n\nwestorder:%d\n\neastorder:%d\n", simData->northOrder, simData->southOrder, simData->westOrder, simData->eastOrder);
+    Position position;
+
 	printf("Checking for neighbours\n");
 
-	for (int row = 0; row < simData->rows-1; row++)
+	for (int row = 0; row < simData->gridInfo.rows - 1; row++)
 	{
 		//printf("Row %d\n", row);
-		for (int col = 0; col < simData->cols-1; col++)
+	    for (int col = 0; col < simData->gridInfo.cols - 1; col++)
 		{
 			//printf("Col %d\n", col);
-			simData->hasNeighbours[row][col] = 0;
 			if (simData->grid[row][col] == '#')
 			{
 				//printf("Found %c at %d:%d", simData->grid[row][col],row,col);
@@ -401,23 +487,20 @@ void checkForNeighbours(SimulationData* simData)
 					int rowNew = row + simData->searchDirections[i][0];
 					int colNew = col + simData->searchDirections[i][1];
 					//printf("New row %d, new col %d\n", newRow, newCol);
-					if (rowNew >= 0 && rowNew <= simData->rows - 1 && colNew >= 0 && colNew <= simData->cols - 1)
+					if (rowNew >= 0 && rowNew <= simData->gridInfo.rows - 1 && colNew >= 0 && colNew <= simData->gridInfo.cols - 1)
 					{
 						if (simData->grid[rowNew][colNew] == '#')
 						{
 							//printf("Found neighbour at %d:%d\n", rowNew, colNew);
-							simData->hasNeighbours[row][col] = 1;
-							//break;
+						    // Has neighbour
+							position.row = row;
+							position.col = col;
+
+							checkForMoves (simData, position);
+							
+							break;
 						}
 					}
-				}
-				if(simData->hasNeighbours[row][col] == 1)
-				{
-					Position position;
-					position.row = row;
-					position.col = col;
-
-					checkForMoves(simData, position);
 				}
 			}
 		}
@@ -463,7 +546,7 @@ int checkMove(SimulationData* simData, Position position, int* directions)
         rowNew = position.row + dx;
         colNew = position.col + dy;
 
-        if (rowNew >= 0 && rowNew <= simData->rows - 1 && colNew >= 0 && colNew <= simData->cols - 1)
+        if (rowNew >= 0 && rowNew <= simData->gridInfo.rows - 1 && colNew >= 0 && colNew <= simData->gridInfo.cols - 1)
         {
             if (simData->grid[rowNew][colNew] == '#')
             {
@@ -474,7 +557,7 @@ int checkMove(SimulationData* simData, Position position, int* directions)
 
     rowNew = position.row + directions[2];
     colNew = position.col + directions[3];
-    if (rowNew >= 0 && rowNew <= simData->rows - 1 && colNew >= 0 && colNew <= simData->cols - 1)
+    if (rowNew >= 0 && rowNew <= simData->gridInfo.rows - 1 && colNew >= 0 && colNew <= simData->gridInfo.cols - 1)
     {
         moveFound = 1;
         saveProposedMove(simData, position.row, position.col, rowNew, colNew);
@@ -498,9 +581,9 @@ int performProposedMoves(SimulationData* simData)
 	printf("Performing proposed moves\n");
 
 
-	for (int row = 0; row < simData->rows - 1; row++)
+	for (int row = 0; row < simData->gridInfo.rows - 1; row++)
 	{
-		for (int col = 0; col < simData->cols - 1; col++)
+		for (int col = 0; col < simData->gridInfo.cols - 1; col++)
 		{
 			if (simData->proposedMoves[row][col][0] != -1 && simData->proposedMoves[row][col][1] != -1)
 			{
@@ -556,6 +639,7 @@ void readFromFile(SimulationData* simData)
 	}
 	simData->grid[row+50][col+50] = '\0';  // Null-terminate the last string
 	//printGrid(simData);
+	fclose (fp);
 }
 
 int* getGridSize()
@@ -610,4 +694,15 @@ int* getGridSize()
 	size[1] = max_cols;
 
 	return size;
+}
+
+void resetGrid(SimulationData* simData)
+{
+    for (int i = 0; i < simData->gridInfo.rows; i++)
+	{
+	    for (int j = 0; j < simData->gridInfo.factor; j++)
+		{
+		    simData->grid[i][j] = '.';
+		}
+	}
 }

@@ -11,9 +11,26 @@
 #ifndef FUNCTIONS_H_
 #define FUNCTIONS_H_
 
+typedef struct
+{
+    int row;
+    int col;
+
+} Position;
+
+typedef struct
+{
+    int rows;
+    int cols;
+    int coords;
+    int searchDirRows;
+    int searchDirCols;
+    float factor;
+
+} GridInfo;
+
 typedef struct {
     char** grid;
-	int** hasNeighbours;
     int** searchDirections;
     int*** proposedMoves;
     int** numOfProposedMoves;
@@ -21,33 +38,15 @@ typedef struct {
 	int southOrder;
 	int westOrder;
 	int eastOrder;
-    int rows;
-	int cols;
 	int searchDirRows;
 	int searchDirCols;
 	int* northDirections;
 	int* southDirections;
 	int* westDirections;
-	int* eastDirections;
+	int *eastDirections;
+	GridInfo gridInfo;
 
 } SimulationData;
-
-typedef struct
-{
-	int rows;
-	int cols;
-	int coords;
-	int searchDirRows;
-	int searchDirCols;
-	float factor;
-
-} GridInfo;
-
-typedef struct
-{
-	int row;
-	int col;
-} Position;
 
 //extern const int searchDirections[16];
 int userInput(int numOfRounds);
@@ -59,7 +58,7 @@ SimulationData* allocateSimulationData(GridInfo gridInfo);
 void freeSimulationData(SimulationData* data, GridInfo gridInfo);
 //void loadInitialState();
 void checkForNeighbours(SimulationData* simData);
-int calculateEmptyTiles(SimulationData* simData);
+int checkEmptyTiles(SimulationData* simData);
 int performProposedMoves(SimulationData* simData);
 void printGrid(SimulationData* simData);
 //void printGridToFile();
@@ -72,5 +71,6 @@ int* getGridSize();
 
 void checkForMoves(SimulationData* simData, Position position);
 int checkMove(SimulationData* simData, Position position, int* directions);
+void resetGrid (SimulationData* simData);
 
 #endif // FUNCTIONS_H_
