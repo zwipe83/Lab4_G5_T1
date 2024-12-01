@@ -12,6 +12,11 @@
 #include <stdlib.h>
 #include "functions.h"
 
+/// <summary>
+/// Read user input
+/// </summary>
+/// <param name="numOfRounds"></param>
+/// <returns></returns>
 int userInput(int numOfRounds)
 {
 	printf("Enter the number of rounds you would like to simulate: ");
@@ -19,293 +24,314 @@ int userInput(int numOfRounds)
 	return numOfRounds;
 }
 
-char** allocateGrid(int rows, int cols) {
-    // Allocate memory for the array of pointers (rows) 
-    char** grid = malloc(rows * sizeof(char*));
-    if (grid == NULL) {
-        printf("Memory allocation failed\n");
-        return NULL;
-    }
-
-    // Allocate memory for each row (columns) 
-    for (int i = 0; i < rows; i++) {
-        grid[i] = malloc(cols * sizeof(char));
-        if (grid[i] == NULL) {
-            printf("Memory allocation failed\n");
-            // Free previously allocated memory 
-            for (int j = 0; j < i; j++) {
-                free(grid[j]);
-            }
-            free(grid);
-            return NULL;
-        }
-    }
-
-    // Initialize the array with some values (e.g., '.') 
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
-            grid[i][j] = '.';
-        }
-    }
-
-    return grid;
-}
-
-int** allocateSearchDirections(int rows, int cols)
+/// <summary>
+/// Allocate memory for a 1D array
+/// </summary>
+/// <param name="length"></param>
+/// <param name="elementSize"></param>
+/// <param name="initialValue"></param>
+/// <returns></returns>
+void* allocate1DArray(int length, size_t elementSize, void* initialValue) 
 {
-	// Allocate memory for the array of pointers (rows) 
-	int** searchDirections = malloc(rows * sizeof(int*));
-	if (searchDirections == NULL) {
+	// Allocate memory for the array
+	void* array = malloc(length * elementSize);
+	if (array == NULL) 
+	{
 		printf("Memory allocation failed\n");
 		return NULL;
 	}
 
-	// Allocate memory for each row (columns) 
-	for (int i = 0; i < rows; i++) {
-		searchDirections[i] = malloc(cols * sizeof(int));
-		if (searchDirections[i] == NULL) {
+	// Initialize the array with the initial value
+	for (int i = 0; i < length; i++) 
+	{
+		if (elementSize == sizeof(int)) 
+		{
+			((int*)array)[i] = *(int*)initialValue;
+		}
+	}
+
+	return array;
+}
+
+/// <summary>
+/// Allocate memory for a 2D array
+/// </summary>
+/// <param name="rows"></param>
+/// <param name="cols"></param>
+/// <param name="elementSize"></param>
+/// <param name="initialValue"></param>
+/// <returns></returns>
+void** allocate2DArray(int rows, int cols, size_t elementSize, void *initialValue) 
+{
+	// Allocate memory for the array of pointers (rows)
+	void** array = malloc(rows * sizeof(void*));
+	if (array == NULL) 
+	{
+		printf("Memory allocation failed\n");
+		return NULL;
+	}
+
+	// Allocate memory for each row
+	for (int i = 0; i < rows; i++) 
+	{
+		array[i] = malloc(cols * elementSize);
+		if (array[i] == NULL) 
+		{
 			printf("Memory allocation failed\n");
-			// Free previously allocated memory 
-			for (int j = 0; j < i; j++) {
-				free(searchDirections[j]);
+			// Free previously allocated memory
+			for (int j = 0; j < i; j++) 
+			{
+				free(array[j]);
 			}
-			free(searchDirections);
+			free(array);
+			return NULL;
+		}
+        // Set each element to the initial value
+        for (int j = 0; j < cols; j++) 
+		{
+            if (elementSize == sizeof(int)) 
+			{
+                ((int*)array[i])[j] = *(int*)initialValue;
+            } 
+			else if (elementSize == sizeof(char)) 
+			{
+                ((char*)array[i])[j] = *(char*)initialValue;
+			}            
+		}
+	}
+
+	return array;
+}
+
+/// <summary>
+/// Allocate memory for a 3D array
+/// </summary>
+/// <param name="rows"></param>
+/// <param name="cols"></param>
+/// <param name="depth"></param>
+/// <param name="elementSize"></param>
+/// <param name="initialValue"></param>
+/// <returns></returns>
+void*** allocate3DArray(int rows, int cols, int depth, size_t elementSize, void* initialValue) 
+{
+	void*** array = malloc(rows * sizeof(void**));
+	if (array == NULL) 
+	{
+		printf("Memory allocation failed\n");
+		return NULL;
+	}
+	for (int i = 0; i < rows; i++) 
+	{
+		array[i] = (void**)allocate2DArray(cols, depth, elementSize, initialValue);
+		if (array[i] == NULL) 
+		{
+			printf("Memory allocation failed\n");
+			for (int j = 0; j < i; j++) 
+			{
+				free2DArray(array[j], cols);
+			}
+			free(array);
 			return NULL;
 		}
 	}
-
-	searchDirections[0][0] = -1; //NW
-	searchDirections[0][1] = -1;
-	searchDirections[1][0] = -1; //N
-	searchDirections[1][1] = 0;
-	searchDirections[2][0] = -1; //NE
-	searchDirections[2][1] = 1;
-	searchDirections[3][0] = 0; //E
-	searchDirections[3][1] = 1;
-	searchDirections[4][0] = 1; //SE
-	searchDirections[4][1] = 1;
-	searchDirections[5][0] = 1; //S
-	searchDirections[5][1] = 0;
-	searchDirections[6][0] = 1; //SW
-	searchDirections[6][1] = -1;
-	searchDirections[7][0] = 0; //W
-	searchDirections[7][1] = -1;
-
-	return searchDirections;
+	return array;
 }
 
-int*** allocateProposedMoves(int rows, int cols, int coords)
+/// <summary>
+/// Free the allocated 1D array
+/// </summary>
+/// <param name="array"></param>
+void free1DArray(void* array) 
 {
-	// Allocate memory for the array of pointers (rows) 
-	int*** proposedMoves = malloc(rows * sizeof(int**));
-	if (proposedMoves == NULL) {
-		printf("Memory allocation failed\n");
-		return NULL;
-	}
-
-	// Allocate memory for each row (columns) 
-	for (int i = 0; i < rows; i++) {
-		proposedMoves[i] = malloc(cols * sizeof(int*));
-		if (proposedMoves[i] == NULL) {
-			printf("Memory allocation failed\n");
-			// Free previously allocated memory 
-			for (int j = 0; j < i; j++) {
-				free(proposedMoves[j]);
-			}
-			free(proposedMoves);
-			return NULL;
-		}
-	}
-
-	// Allocate memory for each row (columns) 
-	for (int i = 0; i < rows; i++) {
-		for (int j = 0; j < cols; j++) {
-			proposedMoves[i][j] = malloc(coords * sizeof(int));
-			if (proposedMoves[i][j] == NULL) {
-				printf("Memory allocation failed\n");
-				// Free previously allocated memory 
-				for (int k = 0; k < j; k++) {
-					free(proposedMoves[i][k]);
-				}
-				free(proposedMoves[i]);
-				for (int k = 0; k < i; k++) {
-					free(proposedMoves[k]);
-				}
-				free(proposedMoves);
-				return NULL;
-			}
-		}
-	}
-
-	// Initialize the array with some values (e.g., '-1')
-	for (int i = 0; i < rows; i++) {
-		for (int j = 0; j < cols; j++) {
-			for (int k = 0; k < coords; k++) {
-				proposedMoves[i][j][k] = -1;
-			}
-		}
-	}
-
-	return proposedMoves;
+	free(array);
 }
 
-int** allocateNumOfProposedMoves(int rows, int cols)
+/// <summary>
+/// Free the allocated 2D array
+/// </summary>
+/// <param name="array"></param>
+/// <param name="rows"></param>
+void free2DArray(void** array, int rows) 
 {
-	// Allocate memory for the array of pointers (rows) 
-	int** numOfProposedMoves = malloc(rows * sizeof(int*));
-	if (numOfProposedMoves == NULL) {
-		printf("Memory allocation failed\n");
-		return NULL;
+	// Free each row
+	for (int i = 0; i < rows; i++) 
+	{
+		free(array[i]);
 	}
-
-	// Allocate memory for each row (columns) 
-	for (int i = 0; i < rows; i++) {
-		numOfProposedMoves[i] = malloc(cols * sizeof(int));
-		if (numOfProposedMoves[i] == NULL) {
-			printf("Memory allocation failed\n");
-			// Free previously allocated memory 
-			for (int j = 0; j < i; j++) {
-				free(numOfProposedMoves[j]);
-			}
-			free(numOfProposedMoves);
-			return NULL;
-		}
-	}
-
-	// Initialize the array with some values (e.g., 0)
-	for (int i = 0; i < rows; i++) {
-		for (int j = 0; j < cols; j++) {
-			numOfProposedMoves[i][j] = 0;
-		}
-	}
-
-	return numOfProposedMoves;
+	// Free the array of pointers
+	free(array);
 }
 
-int* allocateDirections(int rows)
+/// <summary>
+/// Free the allocated 3D array
+/// </summary>
+/// <param name="array"></param>
+/// <param name="rows"></param>
+/// <param name="cols"></param>
+void free3DArray(void*** array, int rows, int cols) 
 {
-	// Allocate memory for the array of pointers (rows) 
-	int* directions = malloc(rows * sizeof(int));
-	if (directions == NULL) {
-		printf("Memory allocation failed\n");
-		return NULL;
+	for (int i = 0; i < rows; i++) 
+	{
+		free2DArray(array[i], cols);
 	}
-
-	// Initialize the array with some values (e.g., 0)
-	for (int i = 0; i < rows; i++) {
-		directions[i] = 0;
-	}
-
-	return directions;
+	free(array);
 }
 
-void freeSimulationData(SimulationData* data, GridInfo gridInfo) {
-	if (data == NULL) return;
+/// <summary>
+/// Free the allocated memory for the simulation data
+/// </summary>
+/// <param name="simData"></param>
+void freeSimulationData(SimulationData* simData) 
+{
+	if (simData == NULL) return;
 
 	// Free grid
-	if (data->grid != NULL)
+	if (simData->grid != NULL)
 	{
-		for (int i = 0; i < gridInfo.rows; i++)
-		    {
-			free (data->grid[i]);
-		    }
-		free (data->grid);
+		free2DArray(simData->grid, simData->gridInfo.rows);
 	}
 
 	// Free searchDirections
-	if (data->searchDirections != NULL)
+	if (simData->searchDirections != NULL)
 	{
-		for (int i = 0; i < gridInfo.searchDirRows; i++)
-		    {
-			free (data->searchDirections[i]);
-		    }
-		free (data->searchDirections);
+		free2DArray(simData->searchDirections, simData->gridInfo.searchDirRows);
 	}
 
 	// Free proposedMoves
-	if (data->proposedMoves != NULL) {
-		for (int i = 0; i < gridInfo.rows; i++) {
-			if (data->proposedMoves[i] != NULL) {
-				for (int j = 0; j < gridInfo.cols; j++) {
-					free(data->proposedMoves[i][j]);
-				}
-				free(data->proposedMoves[i]);
-			}
-		}
-		free(data->proposedMoves);
+	if (simData->proposedMoves != NULL) {
+		free3DArray(simData->proposedMoves, simData->gridInfo.rows, simData->gridInfo.cols);
 	}
 
 	// Free numOfProposedMoves
-	if (data->numOfProposedMoves != NULL)
+	if (simData->numOfProposedMoves != NULL)
 	{
-		for (int i = 0; i < gridInfo.rows; i++)
-		    {
-			free (data->numOfProposedMoves[i]);
-		    }
-		free (data->numOfProposedMoves);
+		free2DArray(simData->numOfProposedMoves, simData->gridInfo.rows);
+	}
+
+	// Free northDirections
+	if (simData->directions.northDirections != NULL)
+	{
+		free1DArray(simData->directions.northDirections);
+	}
+
+	// Free southDirections
+	if (simData->directions.southDirections != NULL)
+	{
+		free1DArray(simData->directions.southDirections);
+	}
+
+	// Free westDirections
+	if (simData->directions.westDirections != NULL)
+	{
+		free1DArray(simData->directions.westDirections);
+	}
+
+	// Free eastDirections
+	if (simData->directions.eastDirections != NULL)
+	{
+		free1DArray(simData->directions.eastDirections);
 	}
 
 	// Free the SimulationData structure itself
-	free(data);
+	free(simData);
 }
 
-
-SimulationData* allocateSimulationData(GridInfo gridInfo) {
+/// <summary>
+/// Allocate memory for the simulation data
+/// </summary>
+/// <param name="gridInfo"></param>
+/// <param name="fileSize"></param>
+/// <returns></returns>
+SimulationData* allocateSimulationData(GridInfo gridInfo, Size fileSize) 
+{
 	SimulationData* data = (SimulationData*)malloc(sizeof(SimulationData));
 	if (data == NULL) {
 		fprintf(stderr, "Memory allocation failed\n");
 		exit(EXIT_FAILURE);
 	}
 
-	data->grid = allocateGrid(gridInfo.rows, gridInfo.cols);
-	data->searchDirections = allocateSearchDirections(gridInfo.searchDirRows, gridInfo.searchDirCols);
-	data->proposedMoves = allocateProposedMoves(gridInfo.rows, gridInfo.cols, gridInfo.coords);
-	data->numOfProposedMoves = allocateNumOfProposedMoves(gridInfo.rows, gridInfo.cols);
-	// Initial order of directions
-	data->northOrder = 0;
-	data->southOrder = 1;
-	data->westOrder = 2;
-	data->eastOrder = 3;
+	//Allocate memory for the grid, search directions, proposed moves, and number of proposed moves
+	char initialChar = '.';
+	int initialInt = 0;
+	data->grid = allocate2DArray(gridInfo.rows, gridInfo.cols, sizeof(char), &initialChar);
+	data->searchDirections = allocate2DArray(gridInfo.searchDirRows, gridInfo.searchDirCols, sizeof(int), &initialInt);
+	data->proposedMoves = allocate3DArray(gridInfo.rows, gridInfo.cols, gridInfo.coords, sizeof(int), &initialInt);
+	data->numOfProposedMoves = allocate2DArray(gridInfo.rows, gridInfo.cols, sizeof(int), &initialInt);
+	data->directions.northDirections = allocate1DArray(6, sizeof(int), &initialInt);
+	data->directions.southDirections = allocate1DArray(6, sizeof(int), &initialInt);
+	data->directions.westDirections = allocate1DArray(6, sizeof(int), &initialInt);
+	data->directions.eastDirections = allocate1DArray(6, sizeof(int), &initialInt);
 
+	//Store information about the file
+	data->fileSize.rows = fileSize.rows;
+	data->fileSize.cols = fileSize.cols;
+
+	//Store information about the grid
 	data->gridInfo.rows = gridInfo.rows;
 	data->gridInfo.cols = gridInfo.cols;
-	data->gridInfo.coords = gridInfo.coords;
 	data->gridInfo.factor = gridInfo.factor;
-	data->searchDirRows = gridInfo.searchDirRows;
-	data->searchDirCols = gridInfo.searchDirCols;
-	data->northDirections = allocateDirections(6);
-	data->southDirections = allocateDirections(6);
-	data->westDirections = allocateDirections(6);
-	data->eastDirections = allocateDirections(6);
 
-	data->northDirections[0] = -1; //NW
-	data->northDirections[1] = -1;
-	data->northDirections[2] = -1; //N
-	data->northDirections[3] = 0;
-	data->northDirections[4] = -1; //NE
-	data->northDirections[5] = 1;
-	data->southDirections[0] = 1; //SE
-	data->southDirections[1] = 1;
-	data->southDirections[2] = 1; //S
-	data->southDirections[3] = 0;
-	data->southDirections[4] = 1; //SW
-	data->southDirections[5] = -1;
-	data->westDirections[0] = -1; //NW
-	data->westDirections[1] = -1;
-	data->westDirections[2] = 0; //W
-	data->westDirections[3] = -1;
-	data->westDirections[4] = 1; //SW
-	data->westDirections[5] = -1;
-	data->eastDirections[0] = -1; //NE
-	data->eastDirections[1] = 1;
-	data->eastDirections[2] = 0; //E
-	data->eastDirections[3] = 1;
-	data->eastDirections[4] = 1; //SE
-	data->eastDirections[5] = 1;
+	// Initial order of directions
+	data->orders.northOrder = 0;
+	data->orders.southOrder = 1;
+	data->orders.westOrder = 2;
+	data->orders.eastOrder = 3;
+
+	// Set search directions
+	data->searchDirections[0][0] = -1; //NW
+	data->searchDirections[0][1] = -1;
+	data->searchDirections[1][0] = -1; //N
+	data->searchDirections[1][1] = 0;
+	data->searchDirections[2][0] = -1; //NE
+	data->searchDirections[2][1] = 1;
+	data->searchDirections[3][0] = 0; //E
+	data->searchDirections[3][1] = 1;
+	data->searchDirections[4][0] = 1; //SE
+	data->searchDirections[4][1] = 1;
+	data->searchDirections[5][0] = 1; //S
+	data->searchDirections[5][1] = 0;
+	data->searchDirections[6][0] = 1; //SW
+	data->searchDirections[6][1] = -1;
+	data->searchDirections[7][0] = 0; //W
+	data->searchDirections[7][1] = -1;
+
+	// Set directions for each direction
+	data->directions.northDirections[0] = -1; //NW
+	data->directions.northDirections[1] = -1;
+	data->directions.northDirections[2] = -1; //N
+	data->directions.northDirections[3] = 0;
+	data->directions.northDirections[4] = -1; //NE
+	data->directions.northDirections[5] = 1;
+
+	data->directions.southDirections[0] = 1; //SE
+	data->directions.southDirections[1] = 1;
+	data->directions.southDirections[2] = 1; //S
+	data->directions.southDirections[3] = 0;
+	data->directions.southDirections[4] = 1; //SW
+	data->directions.southDirections[5] = -1;
+
+	data->directions.westDirections[0] = -1; //NW
+	data->directions.westDirections[1] = -1;
+	data->directions.westDirections[2] = 0; //W
+	data->directions.westDirections[3] = -1;
+	data->directions.westDirections[4] = 1; //SW
+	data->directions.westDirections[5] = -1;
+
+	data->directions.eastDirections[0] = -1; //NE
+	data->directions.eastDirections[1] = 1;
+	data->directions.eastDirections[2] = 0; //E
+	data->directions.eastDirections[3] = 1;
+	data->directions.eastDirections[4] = 1; //SE
+	data->directions.eastDirections[5] = 1;
 
 	return data;
 }
 
+/// <summary>
+/// Start a round of the simulation
+/// </summary>
+/// <param name="simData"></param>
+/// <returns></returns>
 int startRound(SimulationData* simData)
 {
 	int numOfMoves = 0;
@@ -318,6 +344,10 @@ int startRound(SimulationData* simData)
 	return numOfMoves;
 }
 
+/// <summary>
+/// Reset the proposed moves and number of proposed moves arrays
+/// </summary>
+/// <param name="simData"></param>
 void resetArrays(SimulationData* simData)
 {
 	// Reset proposedMoves
@@ -342,16 +372,21 @@ void resetArrays(SimulationData* simData)
 	}
 }
 
-int checkEmptyTiles(SimulationData* simData) // TODO: Complete implementation
+/// <summary>
+/// Check for empty tiles
+/// </summary>
+/// <param name="simData"></param>
+/// <returns></returns>
+int checkEmptyTiles(SimulationData* simData) // FIXED: Complete implementation
 {
 	int emptyTiles = 0;
-
 	int top = 0, bottom = simData->gridInfo.rows - 1;
 	int left = 0, right = simData->gridInfo.cols - 1;
 	int topFound = 0, rightFound = 0, bottomFound = 0, leftFound = 0;
 	int topRow = 0, rightCol = 0, bottomRow = 0, leftCol = 0;
 
-	while (top <= bottom && left <= right) {
+	while (top <= bottom && left <= right) 
+	{
 		// Parse the top row
 		if (!topFound) 
 		{
@@ -402,8 +437,10 @@ int checkEmptyTiles(SimulationData* simData) // TODO: Complete implementation
 
 		// Parse the leftmost column
 		if (!leftFound) {
-			for (int row = bottom; row >= top; row--) {
-				if (simData->grid[row][left] == '#') {
+			for (int row = bottom; row >= top; row--) 
+			{
+				if (simData->grid[row][left] == '#') 
+				{
 					leftFound = 1;
 					printf("Left #: (%d, %d)\n", row, left);
 					leftCol = left;
@@ -430,12 +467,12 @@ int checkEmptyTiles(SimulationData* simData) // TODO: Complete implementation
 			}
 			else if (simData->grid[row][col] == '#')
 			{
-				//Nothing
+				//Nothing to do here.
 			}
 			else
 			{
-				printf("Error: Invalid character in grid: %c\n", simData->grid[row][col]);
-				emptyTiles++;
+				printf("Error: Invalid character in grid %d:%d, bad if you end up here: %c\n", row, col, simData->grid[row][col]);
+				//emptyTiles++;
 			}
 		}
 	}
@@ -443,6 +480,10 @@ int checkEmptyTiles(SimulationData* simData) // TODO: Complete implementation
 	return emptyTiles;
 }
 
+/// <summary>
+/// Print the grid to the console
+/// </summary>
+/// <param name="simData"></param>
 void printGrid(SimulationData* simData)
 {
     for (int i = 0; i < simData->gridInfo.rows; i++)
@@ -455,16 +496,24 @@ void printGrid(SimulationData* simData)
 	}
 }
 
+/// <summary>
+/// Shuffle the order of directions
+/// </summary>
+/// <param name="simData"></param>
 void shuffleOrder(SimulationData* simData)
 {
     // Shuffle the order of directions in the opposite order
-    int temp = simData->eastOrder;
-    simData->eastOrder = simData->westOrder;
-    simData->westOrder = simData->southOrder;
-    simData->southOrder = simData->northOrder;
-    simData->northOrder = temp;
+    int temp = simData->orders.eastOrder;
+    simData->orders.eastOrder = simData->orders.westOrder;
+    simData->orders.westOrder = simData->orders.southOrder;
+    simData->orders.southOrder = simData->orders.northOrder;
+    simData->orders.northOrder = temp;
 }
 
+/// <summary>
+/// Check for neighbours
+/// </summary>
+/// <param name="simData"></param>
 void checkForNeighbours(SimulationData* simData)
 {
 	//printf("Checking for neighbours\nnorthorder:%d\nsouthorder:%d\n\nwestorder:%d\n\neastorder:%d\n", simData->northOrder, simData->southOrder, simData->westOrder, simData->eastOrder);
@@ -481,7 +530,7 @@ void checkForNeighbours(SimulationData* simData)
 			if (simData->grid[row][col] == '#')
 			{
 				//printf("Found %c at %d:%d", simData->grid[row][col],row,col);
-				for (int i = 0; i <= 7; i++)
+				for (int i = 0; i < 8; i++) // Check all 8 directions
 				{
 					//printf("Checking direction %d\n", i);
 					int rowNew = row + simData->searchDirections[i][0];
@@ -507,6 +556,11 @@ void checkForNeighbours(SimulationData* simData)
 	}
 }
 
+/// <summary>
+/// Check for possible moves
+/// </summary>
+/// <param name="simData"></param>
+/// <param name="position"></param>
 void checkForMoves(SimulationData* simData, Position position)
 {
 	//printf("Tile %d:%d has neighbours\n", row, col);
@@ -516,25 +570,32 @@ void checkForMoves(SimulationData* simData, Position position)
 	for (int count = 0; count <= 3; count++)
 	{
 		movePossible = 1;
-		if (count == simData->northOrder && moveFound == 0) // North
+		if (count == simData->orders.northOrder && moveFound == 0) // North
 		{
-			moveFound = checkMove(simData, position, simData->northDirections);
+			moveFound = checkMove(simData, position, simData->directions.northDirections);
 		}
-		if (count == simData->southOrder && moveFound == 0) // South
+		if (count == simData->orders.southOrder && moveFound == 0) // South
 		{
-			moveFound = checkMove(simData, position, simData->southDirections);
+			moveFound = checkMove(simData, position, simData->directions.southDirections);
 		}
-		if (count == simData->westOrder && moveFound == 0) //West
+		if (count == simData->orders.westOrder && moveFound == 0) //West
 		{
-			moveFound = checkMove(simData, position, simData->westDirections);
+			moveFound = checkMove(simData, position, simData->directions.westDirections);
 		}
-		if (count == simData->eastOrder && moveFound == 0) // East
+		if (count == simData->orders.eastOrder && moveFound == 0) // East
 		{
-			moveFound = checkMove(simData, position, simData->eastDirections);
+			moveFound = checkMove(simData, position, simData->directions.eastDirections);
 		}
 	}
 }
 
+/// <summary>
+/// Check if a move is possible
+/// </summary>
+/// <param name="simData"></param>
+/// <param name="position"></param>
+/// <param name="directions"></param>
+/// <returns></returns>
 int checkMove(SimulationData* simData, Position position, int* directions)
 {
     int dx, dy, rowNew, colNew, moveFound = 0;
@@ -566,6 +627,14 @@ int checkMove(SimulationData* simData, Position position, int* directions)
     return moveFound;
 }
 
+/// <summary>
+/// Save the proposed move
+/// </summary>
+/// <param name="simData"></param>
+/// <param name="row"></param>
+/// <param name="col"></param>
+/// <param name="newRow"></param>
+/// <param name="newCol"></param>
 void saveProposedMove(SimulationData* simData, int row, int col, int newRow, int newCol)
 {
 	simData->proposedMoves[row][col][0] = newRow;
@@ -574,6 +643,11 @@ void saveProposedMove(SimulationData* simData, int row, int col, int newRow, int
 	//printf("Proposed move from %d:%d to %d:%d\n", row, col, newRow, newCol);
 }
 
+/// <summary>
+/// Perform the proposed moves, if possible
+/// </summary>
+/// <param name="simData"></param>
+/// <returns></returns>
 int performProposedMoves(SimulationData* simData)
 {
 	int numOfMoves = 0;
@@ -596,7 +670,7 @@ int performProposedMoves(SimulationData* simData)
 					//int dummy = 0;
 					//printf("Moving from %d:%d to %d:%d\n", row, col, newRow, newCol);
 					//printf("Char: %c\n", simData->grid[newRow][newCol]);
-					if (1 || simData->grid[newRow][newCol] == '.') // TODO: Remove the 1 || to enable the check for empty tiles. There is obviously a bug here. Could be related to readFromFile() or the grid allocation.
+					if (simData->grid[newRow][newCol] == '.') // FIXED: Remove the 1 || to enable the check for empty tiles. There is obviously a bug here. Could be related to readFromFile() or the grid allocation. readFromFile() was fixed
 					{
 						simData->grid[newRow][newCol] = '#';
 						simData->grid[row][col] = '.';
@@ -613,6 +687,10 @@ int performProposedMoves(SimulationData* simData)
 	return numOfMoves;
 }
 
+/// <summary>
+/// Read the grid from the input file
+/// </summary>
+/// <param name="simData"></param>
 void readFromFile(SimulationData* simData)
 {
 	// Read from file
@@ -628,20 +706,35 @@ void readFromFile(SimulationData* simData)
 
 	while ((ch = fgetc(fp)) != EOF) {
 		if (ch == '\n') {
-			simData->grid[row+51][col+51] = '\0';  // Null-terminate the string
 			row++;
 			col = 0;
 		}
 		else {
-			simData->grid[row+50][col+50] = ch;
+			setGridValue(simData, row, col, ch);
 			col++;
 		}
 	}
-	simData->grid[row+50][col+50] = '\0';  // Null-terminate the last string
-	//printGrid(simData);
 	fclose (fp);
 }
 
+/// <summary>
+/// Set the value of the grid at the specified row and column
+/// </summary>
+/// <param name="simData"></param>
+/// <param name="row"></param>
+/// <param name="col"></param>
+/// <param name="ch"></param>
+void setGridValue(SimulationData* simData, int row, int col, char ch)
+{
+	int offsetRow = (simData->gridInfo.rows - simData->fileSize.rows) / 2;
+	int offsetCol = (simData->gridInfo.cols - simData->fileSize.cols) / 2;
+	simData->grid[row + offsetRow][col + offsetCol] = ch;
+}
+
+/// <summary>
+/// Function to get the size of the grid from the input file
+/// </summary>
+/// <returns></returns>
 int* getGridSize()
 {
 	FILE* file; errno_t err = fopen_s(&file, "input.txt", "r"); if (err != 0) 
@@ -679,30 +772,10 @@ int* getGridSize()
 		{ 
 			max_cols = cols; 
 		} 
-	} 
-	// Columns are spaces + 1 
-	/*if (max_cols > 0)
-	{
-		max_cols += 1;
 	}
-	else
-	{
-		max_cols = 0;
-	}*/
 
 	size[0] = rows;
 	size[1] = max_cols;
 
 	return size;
-}
-
-void resetGrid(SimulationData* simData)
-{
-    for (int i = 0; i < simData->gridInfo.rows; i++)
-	{
-	    for (int j = 0; j < simData->gridInfo.factor; j++)
-		{
-		    simData->grid[i][j] = '.';
-		}
-	}
 }

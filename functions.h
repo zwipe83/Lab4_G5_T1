@@ -8,60 +8,22 @@
 // </summary>
 //////////////////////////////////////////////////////////////////////////
 
+#include "structs.h"
+
 #ifndef FUNCTIONS_H_
 #define FUNCTIONS_H_
 
-typedef struct
-{
-    int row;
-    int col;
-
-} Position;
-
-typedef struct
-{
-    int rows;
-    int cols;
-    int coords;
-    int searchDirRows;
-    int searchDirCols;
-    float factor;
-
-} GridInfo;
-
-typedef struct {
-    char** grid;
-    int** searchDirections;
-    int*** proposedMoves;
-    int** numOfProposedMoves;
-    int northOrder;
-	int southOrder;
-	int westOrder;
-	int eastOrder;
-	int searchDirRows;
-	int searchDirCols;
-	int* northDirections;
-	int* southDirections;
-	int* westDirections;
-	int *eastDirections;
-	GridInfo gridInfo;
-
-} SimulationData;
-
 //extern const int searchDirections[16];
 int userInput(int numOfRounds);
-char** allocateGrid(int rows, int cols);
-int** allocateSearchDirections(int rows, int cols);
-int*** allocateProposedMoves(int rows, int cols, int coords);
-int** allocateNumOfProposedMoves(int rows, int cols);
-SimulationData* allocateSimulationData(GridInfo gridInfo);
-void freeSimulationData(SimulationData* data, GridInfo gridInfo);
-//void loadInitialState();
+void* allocate1DArray(int length, size_t elementSize, void* initialValue);
+void** allocate2DArray(int rows, int cols, size_t elementSize, void* initialValue);
+void*** allocate3DArray(int rows, int cols, int depth, size_t elementSize, void* initialValue);
+SimulationData* allocateSimulationData(GridInfo gridInfo, Size fileSize);
+void freeSimulationData(SimulationData* data);
 void checkForNeighbours(SimulationData* simData);
 int checkEmptyTiles(SimulationData* simData);
 int performProposedMoves(SimulationData* simData);
 void printGrid(SimulationData* simData);
-//void printGridToFile();
 void readFromFile(SimulationData* simData);
 void resetArrays(SimulationData* simData);
 void saveProposedMove(SimulationData* simData, int row, int col, int newRow, int newCol);
@@ -71,6 +33,10 @@ int* getGridSize();
 
 void checkForMoves(SimulationData* simData, Position position);
 int checkMove(SimulationData* simData, Position position, int* directions);
-void resetGrid (SimulationData* simData);
+void setGridValue(SimulationData* simData, int row, int col, char ch);
+
+void free1DArray(void* array);
+void free2DArray(void** array, int rows);
+void free3DArray(void*** array, int rows, int cols);
 
 #endif // FUNCTIONS_H_

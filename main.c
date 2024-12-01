@@ -14,28 +14,29 @@
 
 int main (void)
 {
+	// Initialize variables
     int numOfRounds = 0, numOfMoves = 0, emptyTiles = 0;
 
-    GridInfo gridInfo;
+	GridInfo gridInfo = { 0,0,2,8,2,1 }; // Initialize gridInfo struct
+	Size fileSize;
 
     int *gridSize = getGridSize ();
-    gridInfo.factor = 3;
+	fileSize.rows = gridSize[0];
+	fileSize.cols = gridSize[1];
+	gridInfo.factor = 3; // Increase this to make the grid bigger
     gridInfo.rows = gridSize[0] * gridInfo.factor;
     gridInfo.cols = gridSize[1] * gridInfo.factor;
-    gridInfo.coords = 2;
-    gridInfo.searchDirRows = 8;
-    gridInfo.searchDirCols = 2;
 
     SimulationData *simData = NULL;
-    simData = allocateSimulationData (gridInfo);
+    simData = allocateSimulationData (gridInfo, fileSize);
+	readFromFile(simData);
 
     printf ("Welcome to Elf Sim 2024\n");
-
-    readFromFile (simData);
 
     numOfRounds = userInput (numOfRounds);
     printf ("You have chosen to simulate %d rounds\n", numOfRounds);
 
+	// Start the simulation
     for (int roundCount = 1; roundCount <= numOfRounds; roundCount++)
 	{
 	    system ("cls");
@@ -48,23 +49,19 @@ int main (void)
 	    if (numOfMoves == 0)
 		{
 		    printf ("No moves were made in round %d\n", roundCount);
-		    break;
+			break; // Break out of the loop if no moves were made
 		}
 
 	    shuffleOrder (simData);
-	    if (roundCount % 10 == 0)
-		{
-		    printGrid(simData);
-		}
 	}
 
-    printGrid (simData);
+	printGrid(simData); // Print the grid
 
-    emptyTiles = checkEmptyTiles (simData);
+	emptyTiles = checkEmptyTiles(simData); // Check for empty tiles
 
     printf ("There are %d empty tiles\n", emptyTiles);
 
-    freeSimulationData(simData, gridInfo);
+	freeSimulationData(simData); // Free the memory
 
 	system ("pause");
 
