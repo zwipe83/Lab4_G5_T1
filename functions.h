@@ -13,7 +13,6 @@
 #ifndef FUNCTIONS_H_
 #define FUNCTIONS_H_
 
-//extern const int searchDirections[16];
 int userInput(int numOfRounds);
 void* allocate1DArray(int length, size_t elementSize, void* initialValue);
 void** allocate2DArray(int rows, int cols, size_t elementSize, void* initialValue);

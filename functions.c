@@ -31,20 +31,20 @@ int userInput(int numOfRounds)
 /// <param name="elementSize"></param>
 /// <param name="initialValue"></param>
 /// <returns></returns>
-void* allocate1DArray(int length, size_t elementSize, void* initialValue) 
+void* allocate1DArray(int length, size_t elementSize, void* initialValue)
 {
 	// Allocate memory for the array
 	void* array = malloc(length * elementSize);
-	if (array == NULL) 
+	if (array == NULL)
 	{
 		printf("Memory allocation failed\n");
 		return NULL;
 	}
 
 	// Initialize the array with the initial value
-	for (int i = 0; i < length; i++) 
+	for (int i = 0; i < length; i++)
 	{
-		if (elementSize == sizeof(int)) 
+		if (elementSize == sizeof(int))
 		{
 			((int*)array)[i] = *(int*)initialValue;
 		}
@@ -61,25 +61,25 @@ void* allocate1DArray(int length, size_t elementSize, void* initialValue)
 /// <param name="elementSize"></param>
 /// <param name="initialValue"></param>
 /// <returns></returns>
-void** allocate2DArray(int rows, int cols, size_t elementSize, void *initialValue) 
+void** allocate2DArray(int rows, int cols, size_t elementSize, void *initialValue)
 {
 	// Allocate memory for the array of pointers (rows)
 	void** array = malloc(rows * sizeof(void*));
-	if (array == NULL) 
+	if (array == NULL)
 	{
 		printf("Memory allocation failed\n");
 		return NULL;
 	}
 
 	// Allocate memory for each row
-	for (int i = 0; i < rows; i++) 
+	for (int i = 0; i < rows; i++)
 	{
 		array[i] = malloc(cols * elementSize);
-		if (array[i] == NULL) 
+		if (array[i] == NULL)
 		{
 			printf("Memory allocation failed\n");
 			// Free previously allocated memory
-			for (int j = 0; j < i; j++) 
+			for (int j = 0; j < i; j++)
 			{
 				free(array[j]);
 			}
@@ -87,16 +87,16 @@ void** allocate2DArray(int rows, int cols, size_t elementSize, void *initialValu
 			return NULL;
 		}
         // Set each element to the initial value
-        for (int j = 0; j < cols; j++) 
+        for (int j = 0; j < cols; j++)
 		{
-            if (elementSize == sizeof(int)) 
+            if (elementSize == sizeof(int))
 			{
                 ((int*)array[i])[j] = *(int*)initialValue;
-            } 
-			else if (elementSize == sizeof(char)) 
+            }
+			else if (elementSize == sizeof(char))
 			{
                 ((char*)array[i])[j] = *(char*)initialValue;
-			}            
+			}
 		}
 	}
 
@@ -112,21 +112,21 @@ void** allocate2DArray(int rows, int cols, size_t elementSize, void *initialValu
 /// <param name="elementSize"></param>
 /// <param name="initialValue"></param>
 /// <returns></returns>
-void*** allocate3DArray(int rows, int cols, int depth, size_t elementSize, void* initialValue) 
+void*** allocate3DArray(int rows, int cols, int depth, size_t elementSize, void* initialValue)
 {
 	void*** array = malloc(rows * sizeof(void**));
-	if (array == NULL) 
+	if (array == NULL)
 	{
 		printf("Memory allocation failed\n");
 		return NULL;
 	}
-	for (int i = 0; i < rows; i++) 
+	for (int i = 0; i < rows; i++)
 	{
 		array[i] = (void**)allocate2DArray(cols, depth, elementSize, initialValue);
-		if (array[i] == NULL) 
+		if (array[i] == NULL)
 		{
 			printf("Memory allocation failed\n");
-			for (int j = 0; j < i; j++) 
+			for (int j = 0; j < i; j++)
 			{
 				free2DArray(array[j], cols);
 			}
@@ -141,7 +141,7 @@ void*** allocate3DArray(int rows, int cols, int depth, size_t elementSize, void*
 /// Free the allocated 1D array
 /// </summary>
 /// <param name="array"></param>
-void free1DArray(void* array) 
+void free1DArray(void* array)
 {
 	free(array);
 }
@@ -151,10 +151,10 @@ void free1DArray(void* array)
 /// </summary>
 /// <param name="array"></param>
 /// <param name="rows"></param>
-void free2DArray(void** array, int rows) 
+void free2DArray(void** array, int rows)
 {
 	// Free each row
-	for (int i = 0; i < rows; i++) 
+	for (int i = 0; i < rows; i++)
 	{
 		free(array[i]);
 	}
@@ -168,9 +168,9 @@ void free2DArray(void** array, int rows)
 /// <param name="array"></param>
 /// <param name="rows"></param>
 /// <param name="cols"></param>
-void free3DArray(void*** array, int rows, int cols) 
+void free3DArray(void*** array, int rows, int cols)
 {
-	for (int i = 0; i < rows; i++) 
+	for (int i = 0; i < rows; i++)
 	{
 		free2DArray(array[i], cols);
 	}
@@ -181,7 +181,7 @@ void free3DArray(void*** array, int rows, int cols)
 /// Free the allocated memory for the simulation data
 /// </summary>
 /// <param name="simData"></param>
-void freeSimulationData(SimulationData* simData) 
+void freeSimulationData(SimulationData* simData)
 {
 	if (simData == NULL) return;
 
@@ -198,7 +198,8 @@ void freeSimulationData(SimulationData* simData)
 	}
 
 	// Free proposedMoves
-	if (simData->proposedMoves != NULL) {
+	if (simData->proposedMoves != NULL)
+	{
 		free3DArray(simData->proposedMoves, simData->gridInfo.rows, simData->gridInfo.cols);
 	}
 
@@ -242,10 +243,11 @@ void freeSimulationData(SimulationData* simData)
 /// <param name="gridInfo"></param>
 /// <param name="fileSize"></param>
 /// <returns></returns>
-SimulationData* allocateSimulationData(GridInfo gridInfo, Size fileSize) 
+SimulationData* allocateSimulationData(GridInfo gridInfo, Size fileSize)
 {
 	SimulationData* data = (SimulationData*)malloc(sizeof(SimulationData));
-	if (data == NULL) {
+	if (data == NULL)
+	{
 		fprintf(stderr, "Memory allocation failed\n");
 		exit(EXIT_FAILURE);
 	}
@@ -351,11 +353,11 @@ int startRound(SimulationData* simData)
 void resetArrays(SimulationData* simData)
 {
 	// Reset proposedMoves
-	for (int i = 0; i < simData->gridInfo.rows; i++) 
+	for (int i = 0; i < simData->gridInfo.rows; i++)
 	{
 		for (int j = 0; j < simData->gridInfo.cols; j++)
 		{
-			for (int k = 0; k < 2; k++) 
+			for (int k = 0; k < 2; k++)
 			{
 				simData->proposedMoves[i][j][k] = -1;
 			}
@@ -385,14 +387,14 @@ int checkEmptyTiles(SimulationData* simData) // FIXED: Complete implementation
 	int topFound = 0, rightFound = 0, bottomFound = 0, leftFound = 0;
 	int topRow = 0, rightCol = 0, bottomRow = 0, leftCol = 0;
 
-	while (top <= bottom && left <= right) 
+	while (top <= bottom && left <= right)
 	{
 		// Parse the top row
-		if (!topFound) 
+		if (!topFound)
 		{
-			for (int col = left; col <= right; col++) 
+			for (int col = left; col <= right; col++)
 			{
-				if (simData->grid[top][col] == '#') 
+				if (simData->grid[top][col] == '#')
 				{
 					topFound = 1;
 					printf("Top #: (%d, %d)\n", top, col);
@@ -404,9 +406,9 @@ int checkEmptyTiles(SimulationData* simData) // FIXED: Complete implementation
 		}
 
 		// Parse the rightmost column
-		if (!rightFound) 
+		if (!rightFound)
 		{
-			for (int row = top; row <= bottom; row++) 
+			for (int row = top; row <= bottom; row++)
 			{
 				if (simData->grid[row][right] == '#') 
 				{
@@ -420,11 +422,11 @@ int checkEmptyTiles(SimulationData* simData) // FIXED: Complete implementation
 		}
 
 		// Parse the bottom row
-		if (!bottomFound) 
+		if (!bottomFound)
 		{
-			for (int col = right; col >= left; col--) 
+			for (int col = right; col >= left; col--)
 			{
-				if (simData->grid[bottom][col] == '#') 
+				if (simData->grid[bottom][col] == '#')
 				{
 					bottomFound = 1;
 					printf("Bottom #: (%d, %d)\n", bottom, col);
@@ -436,10 +438,11 @@ int checkEmptyTiles(SimulationData* simData) // FIXED: Complete implementation
 		}
 
 		// Parse the leftmost column
-		if (!leftFound) {
-			for (int row = bottom; row >= top; row--) 
+		if (!leftFound)
+		{
+			for (int row = bottom; row >= top; row--)
 			{
-				if (simData->grid[row][left] == '#') 
+				if (simData->grid[row][left] == '#')
 				{
 					leftFound = 1;
 					printf("Left #: (%d, %d)\n", row, left);
@@ -450,9 +453,9 @@ int checkEmptyTiles(SimulationData* simData) // FIXED: Complete implementation
 			left++;
 		}
 		// Break out of the loop if all '#' are found 
-		if (topFound && rightFound && bottomFound && leftFound) 
-		{ 
-			break; 
+		if (topFound && rightFound && bottomFound && leftFound)
+		{
+			break;
 		}
 	}
 	printf("Top row: %d\nRight column: %d\nBottom row: %d\nLeft column: %d\n", topRow, rightCol, bottomRow, leftCol);
@@ -654,7 +657,6 @@ int performProposedMoves(SimulationData* simData)
 	
 	printf("Performing proposed moves\n");
 
-
 	for (int row = 0; row < simData->gridInfo.rows - 1; row++)
 	{
 		for (int col = 0; col < simData->gridInfo.cols - 1; col++)
@@ -704,12 +706,15 @@ void readFromFile(SimulationData* simData)
 	int row = 0, col = 0;
 	char ch;
 
-	while ((ch = fgetc(fp)) != EOF) {
-		if (ch == '\n') {
+	while ((ch = fgetc(fp)) != EOF)
+	{
+		if (ch == '\n')
+		{
 			row++;
 			col = 0;
 		}
-		else {
+		else
+		{
 			setGridValue(simData, row, col, ch);
 			col++;
 		}
@@ -737,41 +742,41 @@ void setGridValue(SimulationData* simData, int row, int col, char ch)
 /// <returns></returns>
 int* getGridSize()
 {
-	FILE* file; errno_t err = fopen_s(&file, "input.txt", "r"); if (err != 0) 
-	{ 
-		perror("Unable to open file"); 
-		return EXIT_FAILURE; 
-	} 
-	int rows = 0; 
+	FILE* file; errno_t err = fopen_s(&file, "input.txt", "r"); if (err != 0)
+	{
+		perror("Unable to open file");
+		return EXIT_FAILURE;
+	}
+	int rows = 0;
 	int cols = 0; 
-	int max_cols = 0; 
-	char ch; 
+	int max_cols = 0;
+	char ch;
 	static int size[2] = { 0, 0 };
-	// Count the number of rows and columns 
-	while ((ch = fgetc(file)) != EOF) 
-	{ 
+	// Count the number of rows and columns
+	while ((ch = fgetc(file)) != EOF)
+	{
 		if (ch == '.' || ch == '#')
-		{ 
-			cols++; 
-		} 
-		else if (ch == '\n') 
-		{ 
-			rows++; 
-			if (cols > max_cols) 
-			{ 
-				max_cols = cols; 
-			} 
-			cols = 0; 
-		} 
-	} 
-	// Account for the last row if there's no newline at the end of the file 
-	if (cols > 0) 
-	{ 
-		rows++; 
-		if (cols > max_cols) 
-		{ 
-			max_cols = cols; 
-		} 
+		{
+			cols++;
+		}
+		else if (ch == '\n')
+		{
+			rows++;
+			if (cols > max_cols)
+			{
+				max_cols = cols;
+			}
+			cols = 0;
+		}
+	}
+	// Account for the last row if there's no newline at the end of the file
+	if (cols > 0)
+	{
+		rows++;
+		if (cols > max_cols)
+		{
+			max_cols = cols;
+		}
 	}
 
 	size[0] = rows;
