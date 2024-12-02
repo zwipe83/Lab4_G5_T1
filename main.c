@@ -11,9 +11,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "functions.h"
+#include "tests.h"
+
+//#define DEBUG // Remove this on release
 
 int main (void)
 {
+#ifdef DEBUG
+	runTests();
+#endif
 	// Initialize variables
     int numOfRounds = 0, numOfMoves = 0, emptyTiles = 0;
 

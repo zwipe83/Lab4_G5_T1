@@ -8,10 +8,11 @@
 // </summary>
 //////////////////////////////////////////////////////////////////////////
 
-#include "structs.h"
-
 #ifndef FUNCTIONS_H_
 #define FUNCTIONS_H_
+
+#include <stddef.h>
+#include "structs.h"
 
 int userInput(int numOfRounds);
 void* allocate1DArray(int length, size_t elementSize, void* initialValue);

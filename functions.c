@@ -153,6 +153,7 @@ void free1DArray(void* array)
 /// <param name="rows"></param>
 void free2DArray(void** array, int rows)
 {
+	int dummy = 0;
 	// Free each row
 	for (int i = 0; i < rows; i++)
 	{
@@ -194,7 +195,7 @@ void freeSimulationData(SimulationData* simData)
 	// Free searchDirections
 	if (simData->searchDirections != NULL)
 	{
-		free2DArray(simData->searchDirections, simData->gridInfo.searchDirRows);
+		free2DArray(simData->searchDirections, simData->gridInfo.searchDirRows); // TODO: gridInfo contains invalid data.
 	}
 
 	// Free proposedMoves

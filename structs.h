@@ -18,7 +18,7 @@ typedef struct
 
 } Position;
 
-typedef struct // TODO: Could be made const
+typedef struct
 {
 	int rows;
 	int cols;

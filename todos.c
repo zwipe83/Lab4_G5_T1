@@ -6,5 +6,8 @@
 // FIXED: Refactor SimulationData struct
 // TODO: Remove debug print statements
 // TODO: Add comments to all functions and structs
-// TODO: Write tests
+// FIXED: Write tests
+// TODO: Add more tests
+// FIXED: Comment tests
 // TODO: Write a report
+// TODO: Optimize tests(Optional)
