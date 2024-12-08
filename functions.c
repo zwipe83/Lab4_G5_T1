@@ -12,11 +12,12 @@
 #include <stdlib.h>
 #include "functions.h"
 
-/// <summary>
-/// Read user input
-/// </summary>
-/// <param name="numOfRounds"></param>
-/// <returns></returns>
+/**
+ * @brief Read user input
+ *
+ * @param numOfRounds
+ * @return int
+ */
 int userInput(int numOfRounds)
 {
 	printf("Enter the number of rounds you would like to simulate: ");
@@ -24,14 +25,15 @@ int userInput(int numOfRounds)
 	return numOfRounds;
 }
 
-/// <summary>
-/// Allocate memory for a 1D array
-/// </summary>
-/// <param name="length"></param>
-/// <param name="elementSize"></param>
-/// <param name="initialValue"></param>
-/// <returns></returns>
-void* allocate1DArray(int length, size_t elementSize, void* initialValue)
+/**
+ * @brief Allocate memory for a 1D array
+ *
+ * @param length
+ * @param elementSize
+ * @param initialValue
+ * @return void*
+ */
+void* allocate1DArray(int length, size_t elementSize, void* initialValue) // Only handles int
 {
 	// Allocate memory for the array
 	void* array = malloc(length * elementSize);
@@ -53,15 +55,16 @@ void* allocate1DArray(int length, size_t elementSize, void* initialValue)
 	return array;
 }
 
-/// <summary>
-/// Allocate memory for a 2D array
-/// </summary>
-/// <param name="rows"></param>
-/// <param name="cols"></param>
-/// <param name="elementSize"></param>
-/// <param name="initialValue"></param>
-/// <returns></returns>
-void** allocate2DArray(int rows, int cols, size_t elementSize, void *initialValue)
+/**
+ * @brief Allocate memory for a 2D array
+ *
+ * @param rows
+ * @param cols
+ * @param elementSize
+ * @param initialValue
+ * @return void**
+ */
+void** allocate2DArray(int rows, int cols, size_t elementSize, void* initialValue) // Only handles int and char
 {
 	// Allocate memory for the array of pointers (rows)
 	void** array = malloc(rows * sizeof(void*));
@@ -103,16 +106,17 @@ void** allocate2DArray(int rows, int cols, size_t elementSize, void *initialValu
 	return array;
 }
 
-/// <summary>
-/// Allocate memory for a 3D array
-/// </summary>
-/// <param name="rows"></param>
-/// <param name="cols"></param>
-/// <param name="depth"></param>
-/// <param name="elementSize"></param>
-/// <param name="initialValue"></param>
-/// <returns></returns>
-void*** allocate3DArray(int rows, int cols, int depth, size_t elementSize, void* initialValue)
+/**
+ * @brief Allocate memory for a 3D array
+ *
+ * @param rows
+ * @param cols
+ * @param depth
+ * @param elementSize
+ * @param initialValue
+ * @return void***
+ */
+void*** allocate3DArray(int rows, int cols, int depth, size_t elementSize, void* initialValue) // Only handles int and char
 {
 	void*** array = malloc(rows * sizeof(void**));
 	if (array == NULL)
@@ -137,20 +141,24 @@ void*** allocate3DArray(int rows, int cols, int depth, size_t elementSize, void*
 	return array;
 }
 
-/// <summary>
-/// Free the allocated 1D array
-/// </summary>
-/// <param name="array"></param>
+/**
+ * @brief Free the allocated 1D array
+ *
+ * @param array
+ * @return void
+ */
 void free1DArray(void* array)
 {
 	free(array);
 }
 
-/// <summary>
-/// Free the allocated 2D array
-/// </summary>
-/// <param name="array"></param>
-/// <param name="rows"></param>
+/**
+ * @brief Free the allocated 2D array
+ * 
+ * @param array
+ * @param rows
+ * @return void
+ */
 void free2DArray(void** array, int rows)
 {
 	int dummy = 0;
@@ -163,12 +171,14 @@ void free2DArray(void** array, int rows)
 	free(array);
 }
 
-/// <summary>
-/// Free the allocated 3D array
-/// </summary>
-/// <param name="array"></param>
-/// <param name="rows"></param>
-/// <param name="cols"></param>
+/**
+ * @brief Free the allocated 3D array
+ * 
+ * @param array
+ * @param rows
+ * @param cols
+ * @return void
+ */
 void free3DArray(void*** array, int rows, int cols)
 {
 	for (int i = 0; i < rows; i++)
@@ -178,10 +188,11 @@ void free3DArray(void*** array, int rows, int cols)
 	free(array);
 }
 
-/// <summary>
-/// Free the allocated memory for the simulation data
-/// </summary>
-/// <param name="simData"></param>
+/**
+ * @brief Free the allocated simulation data
+ *
+ * @param simData
+ */
 void freeSimulationData(SimulationData* simData)
 {
 	if (simData == NULL) return;
@@ -195,7 +206,7 @@ void freeSimulationData(SimulationData* simData)
 	// Free searchDirections
 	if (simData->searchDirections != NULL)
 	{
-		free2DArray(simData->searchDirections, simData->gridInfo.searchDirRows); // TODO: gridInfo contains invalid data.
+		free2DArray(simData->searchDirections, simData->gridInfo.searchDirRows); // FIXED: gridInfo contains invalid data. Removed consts from gridInfo struct
 	}
 
 	// Free proposedMoves
@@ -238,12 +249,13 @@ void freeSimulationData(SimulationData* simData)
 	free(simData);
 }
 
-/// <summary>
-/// Allocate memory for the simulation data
-/// </summary>
-/// <param name="gridInfo"></param>
-/// <param name="fileSize"></param>
-/// <returns></returns>
+/**
+ * @brief Allocate memory for the simulation data
+ * 
+ * @param gridInfo
+ * @param fileSize
+ * @return SimulationData*
+ */
 SimulationData* allocateSimulationData(GridInfo gridInfo, Size fileSize)
 {
 	SimulationData* data = (SimulationData*)malloc(sizeof(SimulationData));
@@ -273,6 +285,9 @@ SimulationData* allocateSimulationData(GridInfo gridInfo, Size fileSize)
 	data->gridInfo.rows = gridInfo.rows;
 	data->gridInfo.cols = gridInfo.cols;
 	data->gridInfo.factor = gridInfo.factor;
+	data->gridInfo.searchDirRows = gridInfo.searchDirRows;
+	data->gridInfo.searchDirCols = gridInfo.searchDirCols;
+	data->gridInfo.coords = gridInfo.coords;
 
 	// Initial order of directions
 	data->orders.northOrder = 0;
@@ -330,11 +345,12 @@ SimulationData* allocateSimulationData(GridInfo gridInfo, Size fileSize)
 	return data;
 }
 
-/// <summary>
-/// Start a round of the simulation
-/// </summary>
-/// <param name="simData"></param>
-/// <returns></returns>
+/**
+ * @brief Run the simulation
+ *
+ * @param simData
+ * @return int
+ */
 int startRound(SimulationData* simData)
 {
 	int numOfMoves = 0;
@@ -347,10 +363,12 @@ int startRound(SimulationData* simData)
 	return numOfMoves;
 }
 
-/// <summary>
-/// Reset the proposed moves and number of proposed moves arrays
-/// </summary>
-/// <param name="simData"></param>
+/**
+ * @brief Reset the arrays
+ *
+ * @param simData
+ * @return void
+ */
 void resetArrays(SimulationData* simData)
 {
 	// Reset proposedMoves
@@ -375,11 +393,12 @@ void resetArrays(SimulationData* simData)
 	}
 }
 
-/// <summary>
-/// Check for empty tiles
-/// </summary>
-/// <param name="simData"></param>
-/// <returns></returns>
+/**
+ * @brief Check for empty tiles
+ *
+ * @param simData
+ * @return int
+ */
 int checkEmptyTiles(SimulationData* simData) // FIXED: Complete implementation
 {
 	int emptyTiles = 0;
@@ -476,7 +495,6 @@ int checkEmptyTiles(SimulationData* simData) // FIXED: Complete implementation
 			else
 			{
 				printf("Error: Invalid character in grid %d:%d, bad if you end up here: %c\n", row, col, simData->grid[row][col]);
-				//emptyTiles++;
 			}
 		}
 	}
@@ -484,10 +502,12 @@ int checkEmptyTiles(SimulationData* simData) // FIXED: Complete implementation
 	return emptyTiles;
 }
 
-/// <summary>
-/// Print the grid to the console
-/// </summary>
-/// <param name="simData"></param>
+/**
+ * @brief Print the grid to the console
+ *
+ * @param simData
+ * @return void
+ */
 void printGrid(SimulationData* simData)
 {
     for (int i = 0; i < simData->gridInfo.rows; i++)
@@ -500,10 +520,38 @@ void printGrid(SimulationData* simData)
 	}
 }
 
-/// <summary>
-/// Shuffle the order of directions
-/// </summary>
-/// <param name="simData"></param>
+/**
+ * @brief Print the grid to a file
+ *
+ * @param simData
+ * @return void
+ */
+void printGridToFile(SimulationData* simData)
+{
+	FILE* fp;
+	errno_t err = fopen_s(&fp, "C:/ElfSim/output.txt", "w");
+	if (fp == NULL)
+	{
+		printf("Error opening file\n");
+		exit(EXIT_FAILURE);
+	}
+	for (int i = 0; i < simData->gridInfo.rows; i++)
+	{
+		for (int j = 0; j < simData->gridInfo.cols; j++)
+		{
+			fprintf(fp, "%c", simData->grid[i][j]);
+		}
+		fprintf(fp, "\n");
+	}
+	fclose(fp);
+}
+
+/**
+ * @brief Shuffle the order of directions
+ *
+ * @param simData
+ * @return void
+ */
 void shuffleOrder(SimulationData* simData)
 {
     // Shuffle the order of directions in the opposite order
@@ -514,37 +562,33 @@ void shuffleOrder(SimulationData* simData)
     simData->orders.northOrder = temp;
 }
 
-/// <summary>
-/// Check for neighbours
-/// </summary>
-/// <param name="simData"></param>
+/**
+ * @brief Check for neighbours
+ *
+ * @param simData
+ * @return void
+ */
 void checkForNeighbours(SimulationData* simData)
 {
-	//printf("Checking for neighbours\nnorthorder:%d\nsouthorder:%d\n\nwestorder:%d\n\neastorder:%d\n", simData->northOrder, simData->southOrder, simData->westOrder, simData->eastOrder);
     Position position;
 
 	printf("Checking for neighbours\n");
 
 	for (int row = 0; row < simData->gridInfo.rows - 1; row++)
 	{
-		//printf("Row %d\n", row);
 	    for (int col = 0; col < simData->gridInfo.cols - 1; col++)
 		{
-			//printf("Col %d\n", col);
 			if (simData->grid[row][col] == '#')
 			{
-				//printf("Found %c at %d:%d", simData->grid[row][col],row,col);
 				for (int i = 0; i < 8; i++) // Check all 8 directions
 				{
-					//printf("Checking direction %d\n", i);
 					int rowNew = row + simData->searchDirections[i][0];
 					int colNew = col + simData->searchDirections[i][1];
-					//printf("New row %d, new col %d\n", newRow, newCol);
+
 					if (rowNew >= 0 && rowNew <= simData->gridInfo.rows - 1 && colNew >= 0 && colNew <= simData->gridInfo.cols - 1)
 					{
 						if (simData->grid[rowNew][colNew] == '#')
 						{
-							//printf("Found neighbour at %d:%d\n", rowNew, colNew);
 						    // Has neighbour
 							position.row = row;
 							position.col = col;
@@ -560,11 +604,13 @@ void checkForNeighbours(SimulationData* simData)
 	}
 }
 
-/// <summary>
-/// Check for possible moves
-/// </summary>
-/// <param name="simData"></param>
-/// <param name="position"></param>
+/**
+ * @brief Check for moves
+ *
+ * @param simData
+ * @param position
+ * @return void
+ */
 void checkForMoves(SimulationData* simData, Position position)
 {
 	//printf("Tile %d:%d has neighbours\n", row, col);
@@ -593,13 +639,14 @@ void checkForMoves(SimulationData* simData, Position position)
 	}
 }
 
-/// <summary>
-/// Check if a move is possible
-/// </summary>
-/// <param name="simData"></param>
-/// <param name="position"></param>
-/// <param name="directions"></param>
-/// <returns></returns>
+/**
+ * @brief Check if a move is possible
+ *
+ * @param simData
+ * @param position
+ * @param directions
+ * @return int
+ */
 int checkMove(SimulationData* simData, Position position, int* directions)
 {
     int dx, dy, rowNew, colNew, moveFound = 0;
@@ -627,31 +674,39 @@ int checkMove(SimulationData* simData, Position position, int* directions)
         moveFound = 1;
         saveProposedMove(simData, position.row, position.col, rowNew, colNew);
     }
+	else
+	{
+		printf("Move not possible due to grid size constraints. Increase grid size, by increasing gridInfo.factor.\nTerminating application now.");
+		system("pause");
+		exit(0);
+	}
 
     return moveFound;
 }
 
-/// <summary>
-/// Save the proposed move
-/// </summary>
-/// <param name="simData"></param>
-/// <param name="row"></param>
-/// <param name="col"></param>
-/// <param name="newRow"></param>
-/// <param name="newCol"></param>
+/**
+ * @brief Save the proposed move
+ *
+ * @param simData
+ * @param row
+ * @param col
+ * @param newRow
+ * @param newCol
+ * @return void
+ */
 void saveProposedMove(SimulationData* simData, int row, int col, int newRow, int newCol)
 {
 	simData->proposedMoves[row][col][0] = newRow;
 	simData->proposedMoves[row][col][1] = newCol;
 	simData->numOfProposedMoves[newRow][newCol] += 1;
-	//printf("Proposed move from %d:%d to %d:%d\n", row, col, newRow, newCol);
 }
 
-/// <summary>
-/// Perform the proposed moves, if possible
-/// </summary>
-/// <param name="simData"></param>
-/// <returns></returns>
+/**
+ * @brief Perform proposed moves
+ *
+ * @param simData
+ * @return int
+ */
 int performProposedMoves(SimulationData* simData)
 {
 	int numOfMoves = 0;
@@ -666,13 +721,9 @@ int performProposedMoves(SimulationData* simData)
 			{
 				int newRow = simData->proposedMoves[row][col][0];
 				int newCol = simData->proposedMoves[row][col][1];
-				//printf("numofproposedmoves: %d\n", simData->numOfProposedMoves[newRow][newCol]);
+
 				if (simData->numOfProposedMoves[newRow][newCol] == 1)
 				{
-					//printGrid(simData);
-					//int dummy = 0;
-					//printf("Moving from %d:%d to %d:%d\n", row, col, newRow, newCol);
-					//printf("Char: %c\n", simData->grid[newRow][newCol]);
 					if (simData->grid[newRow][newCol] == '.') // FIXED: Remove the 1 || to enable the check for empty tiles. There is obviously a bug here. Could be related to readFromFile() or the grid allocation. readFromFile() was fixed
 					{
 						simData->grid[newRow][newCol] = '#';
@@ -680,7 +731,6 @@ int performProposedMoves(SimulationData* simData)
 						if (simData->grid[newRow][newCol] == '#' && simData->grid[row][col] == '.')
 						{
 							numOfMoves++;
-							//printf("Elf moved from %d:%d to %d:%d\n", row, col, newRow, newCol);
 						}
 					}
 				}
@@ -690,19 +740,21 @@ int performProposedMoves(SimulationData* simData)
 	return numOfMoves;
 }
 
-/// <summary>
-/// Read the grid from the input file
-/// </summary>
-/// <param name="simData"></param>
+/**
+ * @brief Read from file
+ *
+ * @param simData
+ * @return void
+ */
 void readFromFile(SimulationData* simData)
 {
 	// Read from file
 	FILE* fp;
-	errno_t err = fopen_s(&fp, "input.txt", "r");
+	errno_t err = fopen_s(&fp, "C:/ElfSim/input.txt", "r");
 	if (fp == NULL)
 	{
 		printf("Error opening file\n");
-		exit(EXIT_FAILURE);
+		exit(1); // No reason to continue if we can't read the file
 	}
 	int row = 0, col = 0;
 	char ch;
@@ -723,13 +775,15 @@ void readFromFile(SimulationData* simData)
 	fclose (fp);
 }
 
-/// <summary>
-/// Set the value of the grid at the specified row and column
-/// </summary>
-/// <param name="simData"></param>
-/// <param name="row"></param>
-/// <param name="col"></param>
-/// <param name="ch"></param>
+/**
+ * @brief Set the grid value
+ *
+ * @param simData
+ * @param row
+ * @param col
+ * @param ch
+ * @return void
+ */
 void setGridValue(SimulationData* simData, int row, int col, char ch)
 {
 	int offsetRow = (simData->gridInfo.rows - simData->fileSize.rows) / 2;
@@ -737,13 +791,16 @@ void setGridValue(SimulationData* simData, int row, int col, char ch)
 	simData->grid[row + offsetRow][col + offsetCol] = ch;
 }
 
-/// <summary>
-/// Function to get the size of the grid from the input file
-/// </summary>
-/// <returns></returns>
+/**
+ * @brief Get the grid size from the input file
+ *
+ * @return int*
+ */
 int* getGridSize()
 {
-	FILE* file; errno_t err = fopen_s(&file, "input.txt", "r"); if (err != 0)
+	FILE* file; 
+	errno_t err = fopen_s(&file, "C:/ElfSim/input.txt", "r");
+	if (err != 0)
 	{
 		perror("Unable to open file");
 		return EXIT_FAILURE;

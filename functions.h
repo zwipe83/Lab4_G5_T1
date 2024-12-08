@@ -24,6 +24,7 @@ void checkForNeighbours(SimulationData* simData);
 int checkEmptyTiles(SimulationData* simData);
 int performProposedMoves(SimulationData* simData);
 void printGrid(SimulationData* simData);
+void printGridToFile(SimulationData* simData);
 void readFromFile(SimulationData* simData);
 void resetArrays(SimulationData* simData);
 void saveProposedMove(SimulationData* simData, int row, int col, int newRow, int newCol);

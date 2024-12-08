@@ -11,6 +11,7 @@
 #ifndef STRUCTS_H_
 #define STRUCTS_H_
 
+//Position struct
 typedef struct
 {
     int row;
@@ -18,6 +19,7 @@ typedef struct
 
 } Position;
 
+//Size struct
 typedef struct
 {
 	int rows;
@@ -25,18 +27,20 @@ typedef struct
 
 } Size;
 
+//GridInfo struct. Contains information about the grid.
 typedef struct
 {
     int rows;
     int cols;
-    const int coords;
-    const int searchDirRows;
-    const int searchDirCols;
+    int coords;
+    int searchDirRows;
+    int searchDirCols;
     float factor;
 
 } GridInfo;
 
-typedef struct // TODO: Could be made const
+//Directions struct. Contains arrays of directions for each direction.
+typedef struct
 {
     int* northDirections;
     int* southDirections;
@@ -45,6 +49,7 @@ typedef struct // TODO: Could be made const
 
 } Directions;
 
+//Orders struct. Contains the order of directions for each direction.
 typedef struct
 {
     int northOrder;
@@ -54,6 +59,7 @@ typedef struct
 
 } Orders;
 
+//SimulationData struct. Contains all data needed for the simulation.
 typedef struct 
 {
     char** grid;
@@ -67,4 +73,4 @@ typedef struct
 
 } SimulationData;
 
-#endif /* STRUCTS_H_ */
+#endif // STRUCTS_H_

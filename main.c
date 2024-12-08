@@ -61,7 +61,8 @@ int main (void)
 	    shuffleOrder (simData);
 	}
 
-	printGrid(simData); // Print the grid
+	//printGrid(simData); // Print the grid to screen
+	printGridToFile(simData); // Print the grid to a file
 
 	emptyTiles = checkEmptyTiles(simData); // Check for empty tiles
 
