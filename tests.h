@@ -36,5 +36,4 @@ void testFree3DArray();
 
 void runTests();
 
-
 #endif // TESTS_H_

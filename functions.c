@@ -26,6 +26,22 @@ int userInput(int numOfRounds)
 }
 
 /**
+ * @brief Read user input mode
+ *
+ * @param mode
+ * @return int
+ */
+int userInputMode(int mode)
+{
+	do
+	{
+		printf("Which mode do we run?(Default is 0)\n0: Slow and steady.\n1: Fast and on the edge. ");
+		int i = scanf("%d", &mode);
+	} while (mode < 0 || mode > 1);
+	return mode;
+}
+
+/**
  * @brief Allocate memory for a 1D array
  *
  * @param length
@@ -33,7 +49,7 @@ int userInput(int numOfRounds)
  * @param initialValue
  * @return void*
  */
-void* allocate1DArray(int length, size_t elementSize, void* initialValue) // Only handles int
+void* allocate1DArray(int length, size_t elementSize, void* initialValue) // Only handles int(4 Bytes) and char(1 Byte)
 {
 	// Allocate memory for the array
 	void* array = malloc(length * elementSize);
@@ -50,6 +66,15 @@ void* allocate1DArray(int length, size_t elementSize, void* initialValue) // Onl
 		{
 			((int*)array)[i] = *(int*)initialValue;
 		}
+		else if (elementSize == sizeof(char))
+		{
+			((char*)array)[i] = *(char*)initialValue;
+		}
+		else
+		{
+			printf("Element size not supported: %zu Bytes\n", sizeof(elementSize));
+			return NULL;
+		}
 	}
 
 	return array;
@@ -64,7 +89,7 @@ void* allocate1DArray(int length, size_t elementSize, void* initialValue) // Onl
  * @param initialValue
  * @return void**
  */
-void** allocate2DArray(int rows, int cols, size_t elementSize, void* initialValue) // Only handles int and char
+void** allocate2DArray(int rows, int cols, size_t elementSize, void* initialValue)
 {
 	// Allocate memory for the array of pointers (rows)
 	void** array = malloc(rows * sizeof(void*));
@@ -77,29 +102,17 @@ void** allocate2DArray(int rows, int cols, size_t elementSize, void* initialValu
 	// Allocate memory for each row
 	for (int i = 0; i < rows; i++)
 	{
-		array[i] = malloc(cols * elementSize);
+		array[i] = (void*)allocate1DArray(cols, elementSize, initialValue);
 		if (array[i] == NULL)
 		{
 			printf("Memory allocation failed\n");
 			// Free previously allocated memory
 			for (int j = 0; j < i; j++)
 			{
-				free(array[j]);
+				free1DArray(array[j]);
 			}
 			free(array);
 			return NULL;
-		}
-        // Set each element to the initial value
-        for (int j = 0; j < cols; j++)
-		{
-            if (elementSize == sizeof(int))
-			{
-                ((int*)array[i])[j] = *(int*)initialValue;
-            }
-			else if (elementSize == sizeof(char))
-			{
-                ((char*)array[i])[j] = *(char*)initialValue;
-			}
 		}
 	}
 
@@ -116,7 +129,7 @@ void** allocate2DArray(int rows, int cols, size_t elementSize, void* initialValu
  * @param initialValue
  * @return void***
  */
-void*** allocate3DArray(int rows, int cols, int depth, size_t elementSize, void* initialValue) // Only handles int and char
+void*** allocate3DArray(int rows, int cols, int depth, size_t elementSize, void* initialValue)
 {
 	void*** array = malloc(rows * sizeof(void**));
 	if (array == NULL)
@@ -124,6 +137,7 @@ void*** allocate3DArray(int rows, int cols, int depth, size_t elementSize, void*
 		printf("Memory allocation failed\n");
 		return NULL;
 	}
+
 	for (int i = 0; i < rows; i++)
 	{
 		array[i] = (void**)allocate2DArray(cols, depth, elementSize, initialValue);
@@ -165,7 +179,7 @@ void free2DArray(void** array, int rows)
 	// Free each row
 	for (int i = 0; i < rows; i++)
 	{
-		free(array[i]);
+		free1DArray(array[i]);
 	}
 	// Free the array of pointers
 	free(array);
@@ -261,8 +275,8 @@ SimulationData* allocateSimulationData(GridInfo gridInfo, Size fileSize)
 	SimulationData* data = (SimulationData*)malloc(sizeof(SimulationData));
 	if (data == NULL)
 	{
-		fprintf(stderr, "Memory allocation failed\n");
-		exit(EXIT_FAILURE);
+		printf("Memory allocation failed\n");
+		exit(1);
 	}
 
 	//Allocate memory for the grid, search directions, proposed moves, and number of proposed moves
@@ -342,6 +356,8 @@ SimulationData* allocateSimulationData(GridInfo gridInfo, Size fileSize)
 	data->directions.eastDirections[4] = 1; //SE
 	data->directions.eastDirections[5] = 1;
 
+	data->operations = 0;
+
 	return data;
 }
 
@@ -414,6 +430,7 @@ int checkEmptyTiles(SimulationData* simData) // FIXED: Complete implementation
 		{
 			for (int col = left; col <= right; col++)
 			{
+				simData->operations++;
 				if (simData->grid[top][col] == '#')
 				{
 					topFound = 1;
@@ -430,6 +447,7 @@ int checkEmptyTiles(SimulationData* simData) // FIXED: Complete implementation
 		{
 			for (int row = top; row <= bottom; row++)
 			{
+				simData->operations++;
 				if (simData->grid[row][right] == '#') 
 				{
 					rightFound = 1;
@@ -446,6 +464,7 @@ int checkEmptyTiles(SimulationData* simData) // FIXED: Complete implementation
 		{
 			for (int col = right; col >= left; col--)
 			{
+				simData->operations++;
 				if (simData->grid[bottom][col] == '#')
 				{
 					bottomFound = 1;
@@ -462,6 +481,7 @@ int checkEmptyTiles(SimulationData* simData) // FIXED: Complete implementation
 		{
 			for (int row = bottom; row >= top; row--)
 			{
+				simData->operations++;
 				if (simData->grid[row][left] == '#')
 				{
 					leftFound = 1;
@@ -484,6 +504,7 @@ int checkEmptyTiles(SimulationData* simData) // FIXED: Complete implementation
 	{
 		for (int col = leftCol; col <= rightCol; col++)
 		{
+			simData->operations++;
 			if (simData->grid[row][col] == '.')
 			{
 				emptyTiles++;
@@ -533,7 +554,7 @@ void printGridToFile(SimulationData* simData)
 	if (fp == NULL)
 	{
 		printf("Error opening file\n");
-		exit(EXIT_FAILURE);
+		exit(1);
 	}
 	for (int i = 0; i < simData->gridInfo.rows; i++)
 	{
@@ -570,7 +591,7 @@ void shuffleOrder(SimulationData* simData)
  */
 void checkForNeighbours(SimulationData* simData)
 {
-    Position position;
+	Position position = { 0, 0 };
 
 	printf("Checking for neighbours\n");
 
@@ -582,6 +603,7 @@ void checkForNeighbours(SimulationData* simData)
 			{
 				for (int i = 0; i < 8; i++) // Check all 8 directions
 				{
+					simData->operations++;
 					int rowNew = row + simData->searchDirections[i][0];
 					int colNew = col + simData->searchDirections[i][1];
 
@@ -593,7 +615,7 @@ void checkForNeighbours(SimulationData* simData)
 							position.row = row;
 							position.col = col;
 
-							checkForMoves (simData, position);
+							checkForMoves(simData, position);
 							
 							break;
 						}
@@ -652,6 +674,7 @@ int checkMove(SimulationData* simData, Position position, int* directions)
     int dx, dy, rowNew, colNew, moveFound = 0;
     for (int count2 = 0; count2 < 5; count2 += 2)
     {
+		simData->operations++;
         dx = directions[count2];
         dy = directions[count2 + 1];
 
@@ -717,6 +740,7 @@ int performProposedMoves(SimulationData* simData)
 	{
 		for (int col = 0; col < simData->gridInfo.cols - 1; col++)
 		{
+			simData->operations++;
 			if (simData->proposedMoves[row][col][0] != -1 && simData->proposedMoves[row][col][1] != -1)
 			{
 				int newRow = simData->proposedMoves[row][col][0];
@@ -802,8 +826,8 @@ int* getGridSize()
 	errno_t err = fopen_s(&file, "C:/ElfSim/input.txt", "r");
 	if (err != 0)
 	{
-		perror("Unable to open file");
-		return EXIT_FAILURE;
+		printf("Unable to open file\n");
+		return 1;
 	}
 	int rows = 0;
 	int cols = 0; 

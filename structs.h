@@ -60,7 +60,7 @@ typedef struct
 } Orders;
 
 //SimulationData struct. Contains all data needed for the simulation.
-typedef struct 
+typedef struct
 {
     char** grid;
     int** numOfProposedMoves;
@@ -70,6 +70,7 @@ typedef struct
 	Directions directions;
 	Orders orders;
 	Size fileSize;
+    unsigned long operations;
 
 } SimulationData;
 

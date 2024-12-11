@@ -45,14 +45,14 @@ Round 5
     2.1 Read from file
         2.1.1 Read all characters on all lines from "input.txt"
         2.1.2 Store as 2-d char array, "grid". Eg. grid[30][12] = '#'
-    2.2 Init 3-d int array, "proposedMove", 2-d array of same size as 2.1.2, where each alement is an array containing 2 elements and will hold the parent objects proposed move. Eg. ary[30][12][0] = 30, ary[30][12][1] = 11 for a move to N
+    2.2 Init 3-d int array, "proposedMove", 2-d array of same size as 2.1.2, where each alement is an array containing 2 elements and will hold the parent objects proposed move. Eg. ary[30][12][0] = 29, ary[30][12][1] = 12 for a move to North
     2.3 Init 2-d int array, "numOfProposedMoves", of same size as 2.1.2, for storing if its ok to move to this position. Eg. ary[30][11] == 1, if its ok to move. More than 1, not ok to move
     2.4 Set inital direction order
         2.4.1 Save in array, "moveOrder" [N,S,W,E]
     2.5 Set search order from current position
         2.5.1 Save as 2-d int array, x and y.
             2.5.1.1 NW:[-1,-1],N:[-1,0],NE:[-1,1],E:[0,1],SE:[1,1],S:[1,0],SW:[1,-1],W:[0,-1]
-	2.6 Init int, "numOfRounds"
+    2.6 Init int, "numOfRounds"
 3. User input number of rounds
     3.1 Ask how many rounds to rounds
         3.1.1 If no input or negative input
@@ -78,7 +78,7 @@ Round 5
 		5.1.1 Iterate array 2.2 col-by-col
 			5.1.1.1 Iterate array 2.2 coord-by-coord
 				5.1.1.1.1 If -1
-					5.1.1.1.1.3 continue
+					5.1.1.1.1.1 continue
 				5.1.1.1.2 If >= 0 and if array 2.3 == 1, move position in array 2.1.2 to new position from array 2.2
 					5.1.1.1.2.1 Add 1 to "numOfMoves" 3.9.1
 	5.2 Reset arrays 2.2 and 2.3

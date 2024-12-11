@@ -25,7 +25,7 @@ void testAllocate1DArray()
     {
         assert(array[i] == 11 && "testAllocate1DArray(): Array element is not equal to 11");
     }
-	
+
 	free1DArray(array);
 }
 
